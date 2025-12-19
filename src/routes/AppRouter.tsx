@@ -1,14 +1,20 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import HomePage from "../pages/HomePage";
-import NotFound from "../pages/NotFound";
+import { Routes, Route } from "react-router-dom";
+import { Suspense } from "react";
+import ProtectedRoute from "../routes/ProtectedRoute";
+import { HomePage, LoginPage } from "../routes/lazyPages";
 
-export default function AppRouter() {
+function App() {
   return (
-    <BrowserRouter>
+    <Suspense fallback={<div>Loading page...</div>}>
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="*" element={<NotFound />} />
+        <Route path="/login" element={<LoginPage />} />
+
+        <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<HomePage />} />
+        </Route>
       </Routes>
-    </BrowserRouter>
+    </Suspense>
   );
 }
+
+export default App;
