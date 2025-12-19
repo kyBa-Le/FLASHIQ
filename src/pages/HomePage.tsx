@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/Button";
 import Cookies from "js-cookie";
 
 const Home = () => {
@@ -9,7 +10,7 @@ const Home = () => {
   return (
     <div>
       <h1>Home (Protected)</h1>
-      <button onClick={logout}>Logout</button>
+      <Button variant="outline" onClick={logout}>Logout</Button>
     </div>
   );
 };

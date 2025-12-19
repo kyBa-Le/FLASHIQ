@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import { Suspense } from "react";
 import ProtectedRoute from "../routes/ProtectedRoute";
 import { HomePage, LoginPage } from "../routes/lazyPages";
+import NotFound from "@/pages/NotFound";
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<HomePage />} />
         </Route>
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
   );
