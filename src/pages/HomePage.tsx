@@ -1,13 +1,18 @@
-import Button from "../components/ui/Button";
+import { Button } from "@/components/ui/Button";
+import Cookies from "js-cookie";
 
-export default function HomePage() {
+const Home = () => {
+  const logout = () => {
+    Cookies.remove("access_token");
+    window.location.href = "/login";
+  };
+
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center">
-      <h1 className="text-5xl font-bold text-red-500">Hello</h1>
-      <h1 className="text-3xl font-bold text-blue-600 mb-4">
-        Welcome to FlashIQ
-      </h1>
-      <Button label="Click me" />
+    <div>
+      <h1>Home (Protected)</h1>
+      <Button variant="outline" onClick={logout}>Logout</Button>
     </div>
   );
-}
+};
+
+export default Home;
