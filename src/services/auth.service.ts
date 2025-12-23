@@ -4,7 +4,7 @@ export async function login(payload: {
   email: string;
   password: string;
 }): Promise<void> {
-  const res = await fetch(`${API_BASE}/api/auth/login`, {
+  const res = await fetch(`${API_BASE}/api/v1/auth/login`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -20,7 +20,7 @@ export async function login(payload: {
 }
 
 export async function refreshToken(): Promise<void> {
-  const res = await fetch(`${API_BASE}/api/auth/refresh`, {
+  const res = await fetch(`${API_BASE}/api/v1/auth/refresh`, {
     method: "POST",
     credentials: "include",
   });
@@ -31,10 +31,8 @@ export async function refreshToken(): Promise<void> {
 }
 
 export async function logout(): Promise<void> {
-  await fetch(`${API_BASE}/api/auth/logout`, {
+  await fetch(`${API_BASE}/api/v1/auth/logout`, {
     method: "POST",
     credentials: "include",
   });
-
-  window.location.href = "/login";
 }
