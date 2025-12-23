@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import Cookies from "js-cookie";
 import { Input } from "@/components/ui/input"
 import { Label } from "@radix-ui/react-label";
