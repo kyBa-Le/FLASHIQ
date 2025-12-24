@@ -1,13 +1,13 @@
+import { useState } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { NavLink } from "react-router-dom";
-
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
-
 import {
   Form,
   FormControl,
@@ -15,21 +15,55 @@ import {
   FormItem,
   FormMessage,
 } from "@/components/ui/form";
-import { loginSchema } from "@/schema/login.schema";
 
-type LoginFormValues = z.infer<typeof loginSchema>;
+import { signupSchema } from "@/schema/signup.schema";
+import { register } from "@/services/auth.service";
 
-export default function LoginPage() {
-  const form = useForm<LoginFormValues>({
-    resolver: zodResolver(loginSchema),
+type SignupFormValues = z.infer<typeof signupSchema>;
+
+export default function SignupPage() {
+  const navigate = useNavigate();
+  const [serverError, setServerError] = useState<string | null>(null);
+
+  const form = useForm<SignupFormValues>({
+    resolver: zodResolver(signupSchema),
     defaultValues: {
       email: "",
+      username: "",
       password: "",
     },
+    mode: "onSubmit",
   });
 
-  const onSubmit = (data: LoginFormValues) => {
-    console.log("Login data:", data);
+  const onSubmit = async (data: SignupFormValues) => {
+    setServerError(null);
+
+    try {
+      await register(data);
+      navigate("/login");
+    } catch (error) {
+      if (!(error instanceof Error)) {
+        setServerError("Registration failed");
+        return;
+      }
+      if (error.message.toLowerCase().includes("email")) {
+        form.setError("email", {
+          type: "server",
+          message: error.message,
+        });
+        return;
+      }
+
+      if (error.message.toLowerCase().includes("username")) {
+        form.setError("username", {
+          type: "server",
+          message: error.message,
+        });
+        return;
+      }
+
+      setServerError(error.message);
+    }
   };
 
   return (
@@ -47,6 +81,7 @@ export default function LoginPage() {
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="w-full max-w-sm space-y-6"
+            noValidate
           >
             <Button
               type="button"
@@ -55,10 +90,10 @@ export default function LoginPage() {
             >
               <img
                 src="https://www.svgrepo.com/show/475656/google-color.svg"
-                alt="google"
+                alt="Google"
                 className="h-4 w-4"
               />
-              Login with Google
+              Continue with Google
             </Button>
 
             <div className="relative flex items-center">
@@ -73,16 +108,34 @@ export default function LoginPage() {
               control={form.control}
               name="email"
               render={({ field }) => (
-                <FormItem className="space-y-1">
+                <FormItem>
                   <Label>Email</Label>
                   <FormControl>
                     <Input
-                      placeholder="Enter your email address"
-                      className="rounded-full"
                       {...field}
+                      placeholder="Enter your email"
+                      className="rounded-full"
                     />
                   </FormControl>
-                  <FormMessage className="text-error text-xs" />
+                  <FormMessage className="text-red-500 text-xs" />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <Label>Username</Label>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder="Enter your username"
+                      className="rounded-full"
+                    />
+                  </FormControl>
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
@@ -91,46 +144,41 @@ export default function LoginPage() {
               control={form.control}
               name="password"
               render={({ field }) => (
-                <FormItem className="space-y-1">
+                <FormItem>
                   <Label>Password</Label>
                   <FormControl>
                     <Input
+                      {...field}
                       type="password"
                       placeholder="Enter your password"
                       className="rounded-full"
-                      {...field}
                     />
                   </FormControl>
-                  <FormMessage className="text-error text-xs" />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
 
-            <div className="text-right">
-              <NavLink
-                to="/forgot-password"
-                className="text-sm text-primary hover:underline"
-              >
-                Forgot password?
-              </NavLink>
-            </div>
+            {serverError && (
+              <p className="text-red-500 text-sm text-center">{serverError}</p>
+            )}
 
             <Button
               type="submit"
               className="w-full h-11 rounded-full"
               disabled={form.formState.isSubmitting}
             >
-              Log in
+              {form.formState.isSubmitting ? "Signing up..." : "Sign up"}
             </Button>
 
             <Button
               asChild
               variant="outline"
-              className="w-full h-11 gap-2 rounded-full bg-input text-gray-500 hover:text-gray-700"
+              className="w-full h-11 rounded-full bg-input text-gray-500 hover:text-gray-700"
             >
-              <NavLink to="/signup">
-                New to FlashIQ?{" "}
-                <span className="font-medium">Create an account</span>
+              <NavLink to="/login">
+                Already have an account?{" "}
+                <span className="font-medium">Login</span>
               </NavLink>
             </Button>
           </form>
