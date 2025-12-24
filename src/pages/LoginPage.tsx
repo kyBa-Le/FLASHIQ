@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import Cookies from "js-cookie";
 
 const Login = () => {
@@ -10,7 +10,9 @@ const Login = () => {
   return (
     <div className="flex flex-col bg-red-500">
       <h1>Login</h1>
-      <Button variant="outline" onClick={login}>Login</Button>
+      <Button variant="outline" onClick={login}>
+        Login
+      </Button>
     </div>
   );
 };

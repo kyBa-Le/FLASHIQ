@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/Button";
+import { Button } from "@/components/ui/button";
 import Cookies from "js-cookie";
 
 const Home = () => {
@@ -10,7 +10,10 @@ const Home = () => {
   return (
     <div>
       <h1>Home (Protected)</h1>
-      <Button variant="outline" onClick={logout}>Logout</Button>
+      {/* <NavLink to="/library">Library</NavLink> */}
+      <Button variant="outline" onClick={logout}>
+        Logout
+      </Button>
     </div>
   );
 };

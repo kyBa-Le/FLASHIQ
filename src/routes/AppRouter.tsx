@@ -1,8 +1,11 @@
 import { Routes, Route } from "react-router-dom";
 import { Suspense } from "react";
 import ProtectedRoute from "../routes/ProtectedRoute";
-import { HomePage, LoginPage } from "../routes/lazyPages";
+import MainLayout from "../layouts/MainLayout";
+import { HomeUserPage, LoginPage,LibraryPage,CreateSetPage,EditSetPage } from "./lazyPages";
 import NotFound from "@/pages/NotFound";
+import EditorLayout from "@/layouts/EditorLayout";
+
 
 function App() {
   return (
@@ -11,8 +14,16 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
 
         <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<HomePage />} />
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<HomeUserPage />} />
+            <Route path="/library" element={<LibraryPage />} />
+          </Route>
+          <Route element={<EditorLayout />}>
+            <Route path="/sets/create" element={<CreateSetPage />} />
+            <Route path="/sets/:id/edit" element={<EditSetPage />} />
+          </Route>
         </Route>
+
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Suspense>
