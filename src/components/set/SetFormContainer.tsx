@@ -1,5 +1,5 @@
 // src/components/set/SetFormContainer.tsx
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { ArrowLeft, ToggleRight, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -111,7 +111,7 @@ export function SetFormContainer({
             <Input
               placeholder="Title"
               {...register("title")}
-              className="bg-background"
+              className="border bg-white shadow-sm rounded-md px-3 py-2 text-sm w-full"
             />
             {errors.title && (
               <p className="text-sm text-red-500">{errors.title.message}</p>
@@ -164,7 +164,6 @@ export function SetFormContainer({
             onSave={(role) => {
               console.log("Public role:", role);
 
-              // Gợi ý chuẩn:
               methods.setValue("is_public", true);
               // methods.setValue("public_role", role);
 

@@ -31,7 +31,7 @@ export function SetForm({ index, onRemove }: Props) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
               <Label>Term (English)</Label>
-              <Input {...register(`cards.${index}.term`)} />
+              <Input {...register(`cards.${index}.term`)} className="border bg-white rounded-md px-3 py-2 text-sm w-full" />
               {cardErrors?.term && (
                 <p className="text-sm text-red-500">
                   {cardErrors.term.message}
@@ -41,7 +41,7 @@ export function SetForm({ index, onRemove }: Props) {
 
             <div className="space-y-1">
               <Label>Definition (Vietnamese)</Label>
-              <Input {...register(`cards.${index}.definition`)} />
+              <Input {...register(`cards.${index}.definition`)} className="border bg-white rounded-md px-3 py-2 text-sm w-full" />
               {cardErrors?.definition && (
                 <p className="text-sm text-red-500">
                   {cardErrors.definition.message}
@@ -87,7 +87,6 @@ export function SetForm({ index, onRemove }: Props) {
                         className="absolute inset-0 w-full h-full object-cover"
                       />
 
-                      {/* Remove image */}
                       <button
                         type="button"
                         onClick={() => field.onChange(undefined)}

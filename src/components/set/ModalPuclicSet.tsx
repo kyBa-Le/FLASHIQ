@@ -5,7 +5,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -44,13 +44,12 @@ export function ModalPublicSet({ open, onClose, defaultRole, onSave }: Props) {
           <DialogTitle>Access management</DialogTitle>
         </DialogHeader>
 
-        {/* INVITE */}
         <div className="flex items-center gap-2">
-          <Input
+          <Input type="email"
             placeholder="Enter email address"
             value={inviteEmail}
             onChange={(e) => setInviteEmail(e.target.value)}
-          />
+          className="border bg-white rounded-md px-3 py-2 text-sm w-full"/>
 
           <Select
             value={inviteRole}
@@ -129,7 +128,8 @@ export function ModalPublicSet({ open, onClose, defaultRole, onSave }: Props) {
         </div>
 
         <DialogFooter className="flex justify-between">
-          <Button type="button"
+          <Button
+            type="button"
             variant="outline"
             onClick={() => navigator.clipboard.writeText(window.location.href)}
             className="rounded-full"
@@ -137,12 +137,9 @@ export function ModalPublicSet({ open, onClose, defaultRole, onSave }: Props) {
             Copy link
           </Button>
 
-          <div className="flex gap-2">
-            <Button type="button" variant="outline" onClick={onClose} className="rounded-full">
-              Cancel
-            </Button>
-            <Button type="button" onClick={handleSave} className="rounded-full">Save</Button>
-          </div>
+          <Button type="button" onClick={handleSave} className="rounded-full">
+            Save
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

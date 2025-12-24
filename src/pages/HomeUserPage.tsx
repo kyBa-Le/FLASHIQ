@@ -1,5 +1,7 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import Cookies from "js-cookie";
+import { Input } from "@/components/ui/input"
+import { Label } from "@radix-ui/react-label";
 
 const Home = () => {
   const logout = () => {
@@ -10,10 +12,9 @@ const Home = () => {
   return (
     <div>
       <h1>Home (Protected)</h1>
-      {/* <NavLink to="/library">Library</NavLink> */}
-      <Button variant="outline" onClick={logout}>
-        Logout
-      </Button>
+      <Button variant="outline" onClick={logout}>Logout</Button>
+      <Label htmlFor="sample-input" className="block mb-2 mt-4">Sample Input</Label>
+      <Input placeholder="Sample Input" />
     </div>
   );
 };

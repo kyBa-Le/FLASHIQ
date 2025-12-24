@@ -1,6 +1,7 @@
 import React from "react";
 import { Menu, Search } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { Input } from "../ui/input";
 
 const LOGO_SRC = "/assets/logo.png";
 const ADD_ICON_SRC = "/assets/add.png";
@@ -38,7 +39,7 @@ const Header: React.FC = () => {
               <span className="absolute inset-y-0 left-3 flex items-center text-gray-400">
                 <Search size={ICON_SIZE} />
               </span>
-              <input
+              <Input
                 aria-label="Search"
                 type="text"
                 placeholder="Search..."
@@ -49,7 +50,7 @@ const Header: React.FC = () => {
 
           <div className="flex items-center gap-4">
             <NavLink
-              to="/create-set"
+              to="/sets/create"
               aria-label="create-set"
               className="h-8 w-8 rounded-md hover:bg-gray-100 focus:outline-none"
             >
