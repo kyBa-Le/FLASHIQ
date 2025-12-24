@@ -8,8 +8,14 @@ export default {
         secondary: "#C47BE4",
         border: "#979EB0",
         success: "#087D0E",
-        error: "#EF9E6F",
 
+        red: {
+          700: "#B91C1C",
+          600: "#EF4444",
+          500: "#EF9E6F",
+          400: "#FCA5A5",
+        },
+        
         gray: {
           700: "#2E303E",
           600: "#6C7284",

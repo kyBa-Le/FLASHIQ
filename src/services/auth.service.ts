@@ -1,38 +1,61 @@
 import { API_BASE } from "./apiClient";
 
-export async function login(payload: {
+type ApiResponse<T = unknown> = {
+  message?: string;
+  data?: T;
+};
+
+async function request<T>(url: string, options: RequestInit = {}): Promise<T> {
+  const res = await fetch(url, {
+    credentials: "include",
+    ...options,
+  });
+
+  const contentType = res.headers.get("content-type") || "";
+  const isJson = contentType.includes("application/json");
+
+  const data: ApiResponse<T> | string = isJson
+    ? await res.json()
+    : await res.text();
+
+  if (!res.ok) {
+    const message =
+      typeof data === "string" ? data : data?.message ?? "Something went wrong";
+
+    throw new Error(message);
+  }
+
+  return typeof data === "string" ? (data as T) : data.data ?? (data as T);
+}
+
+export function register(payload: {
+  username?: string;
   email: string;
   password: string;
-}): Promise<void> {
-  const res = await fetch(`${API_BASE}/api/v1/auth/login`, {
+}) {
+  return request(`${API_BASE}/api/v1/auth/register`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
-
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(`Login failed: ${res.status} ${text}`);
-  }
 }
 
-export async function refreshToken(): Promise<void> {
-  const res = await fetch(`${API_BASE}/api/v1/auth/refresh`, {
+export function login(payload: { email: string; password: string }) {
+  return request(`${API_BASE}/api/v1/auth/login`, {
     method: "POST",
-    credentials: "include",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
   });
-
-  if (!res.ok) {
-    throw new Error("Refresh token failed");
-  }
 }
 
-export async function logout(): Promise<void> {
-  await fetch(`${API_BASE}/api/v1/auth/logout`, {
+export function refreshToken() {
+  return request(`${API_BASE}/api/v1/auth/refresh`, {
     method: "POST",
-    credentials: "include",
+  });
+}
+
+export function logout() {
+  return request(`${API_BASE}/api/v1/auth/logout`, {
+    method: "POST",
   });
 }
