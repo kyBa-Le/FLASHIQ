@@ -1,4 +1,5 @@
 import { useState } from "react";
+import axios from "axios";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,38 +38,87 @@ export default function SignupPage() {
 
   const onSubmit = async (data: SignupFormValues) => {
     setServerError(null);
-
     try {
       await register(data);
       navigate("/login");
-    } catch (error) {
-      if (!(error instanceof Error)) {
-        setServerError("Registration failed");
-        return;
-      }
-      if (error.message.toLowerCase().includes("email")) {
-        form.setError("email", {
-          type: "server",
-          message: error.message,
-        });
+    } catch (err) {
+      console.error("Signup error:", err);
+      if (axios.isAxiosError(err)) {
+        const data = err.response?.data as
+          | { message?: string; errors?: unknown }
+          | undefined;
+
+        if (data) {
+          if (typeof data.message === "string") {
+            const msg = data.message;
+            if (msg.toLowerCase().includes("email")) {
+              form.setError("email", { type: "server", message: msg });
+              return;
+            }
+            if (msg.toLowerCase().includes("username")) {
+              form.setError("username", { type: "server", message: msg });
+              return;
+            }
+            setServerError(msg);
+            return;
+          }
+
+          if (Array.isArray(data.errors)) {
+            for (const e of data.errors as Array<{
+              field?: string;
+              message?: string;
+            }>) {
+              if (e.field && e.message) {
+                form.setError(e.field as keyof SignupFormValues, {
+                  type: "server",
+                  message: e.message,
+                });
+              }
+            }
+            return;
+          }
+
+          if (typeof data.errors === "object" && data.errors !== null) {
+            const errorsMap = data.errors as Record<string, unknown>;
+            for (const key in errorsMap) {
+              const val = errorsMap[key];
+              const msg = Array.isArray(val)
+                ? (val as string[]).join(", ")
+                : String(val);
+              form.setError(key as keyof SignupFormValues, {
+                type: "server",
+                message: msg,
+              });
+            }
+            return;
+          }
+        }
+
+        setServerError(err.message || "Registration failed");
         return;
       }
 
-      if (error.message.toLowerCase().includes("username")) {
-        form.setError("username", {
-          type: "server",
-          message: error.message,
-        });
+      if (err instanceof Error) {
+        const message = err.message;
+        if (message.toLowerCase().includes("email")) {
+          form.setError("email", { type: "server", message });
+          return;
+        }
+        if (message.toLowerCase().includes("username")) {
+          form.setError("username", { type: "server", message });
+          return;
+        }
+        setServerError(message);
         return;
       }
 
-      setServerError(error.message);
+      setServerError("Registration failed");
     }
   };
 
   return (
-    <div className="min-h-screen flex">
-      <div className="relative hidden w-1/2 lg:block">
+    <div className="flex overflow-hidden">
+      <div className="hidden lg:flex w-1/2 h-full object-cover">
         <img
           src="/assets/bg-login.png"
           alt="FlashIQ style"

@@ -1,18 +1,16 @@
-import type { Login } from "@/types/auth.type";
 import { createContext } from "react";
+import type { LoginDto } from "@/types/auth.type";
 
-export type User = {
-  id: number;
-  username: string;
-  email: string;
-  avatar: string;
-};
-
-export type AuthContextType = {
-  user: User | null;
-  login: (credentials: Login) => Promise<void>;
-  logout: () => Promise<void>;
+export interface AuthContextType {
+  isAuthenticated: boolean;
   loading: boolean;
-};
+  login: (payload: LoginDto) => Promise<void>;
+  logout: () => Promise<void>;
+}
 
-export const AuthContext = createContext<AuthContextType | null>(null);
+export const AuthContext = createContext<AuthContextType>({
+  isAuthenticated: false,
+  loading: false,
+  login: async () => {},
+  logout: async () => {},
+});
