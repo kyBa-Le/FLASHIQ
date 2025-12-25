@@ -6,11 +6,12 @@ export function ListItemContent({
   meta: string
 }) {
   return (
-    <div className="flex flex-col gap-1">
-      <span className="text-xs text-muted-foreground">
+    <div className="flex min-w-0 flex-col gap-1">
+      <span className="truncate text-xs leading-4 text-muted-foreground">
         {meta}
       </span>
-      <h3 className="text-sm font-semibold">
+
+      <h3 className="line-clamp-2 text-sm font-semibold leading-5">
         {title}
       </h3>
     </div>

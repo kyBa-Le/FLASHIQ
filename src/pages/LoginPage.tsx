@@ -2,11 +2,13 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useAuth } from "@/hooks/useAuth";
 
 import {
   Form,
@@ -28,13 +30,36 @@ export default function LoginPage() {
     },
   });
 
-  const onSubmit = (data: LoginFormValues) => {
-    console.log("Login data:", data);
+  const navigate = useNavigate();
+  const { login } = useAuth();
+  const [serverError, setServerError] = useState<string | null>(null);
+
+  const onSubmit = async (data: LoginFormValues) => {
+    setServerError(null);
+    try {
+      await login(data);
+      navigate("/");
+    } catch (error) {
+      if (error instanceof Error) {
+        const message = error.message.toLowerCase();
+        if (message.includes("email")) {
+          form.setError("email", { type: "server", message: error.message });
+          return;
+        }
+        if (message.includes("password")) {
+          form.setError("password", { type: "server", message: error.message });
+          return;
+        }
+        setServerError(error.message);
+      } else {
+        setServerError("Login failed");
+      }
+    }
   };
 
   return (
-    <div className="min-h-screen flex">
-      <div className="relative hidden w-1/2 lg:block">
+    <div className="h-screen flex overflow-hidden">
+      <div className="hidden lg:flex w-1/2 h-full">
         <img
           src="/assets/bg-login.png"
           alt="FlashIQ style"
@@ -82,7 +107,7 @@ export default function LoginPage() {
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage className="text-error text-xs" />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
@@ -101,7 +126,7 @@ export default function LoginPage() {
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage className="text-error text-xs" />
+                  <FormMessage className="text-red-500 text-xs" />
                 </FormItem>
               )}
             />
@@ -115,12 +140,16 @@ export default function LoginPage() {
               </NavLink>
             </div>
 
+            {serverError && (
+              <p className="text-red-500 text-sm text-center">{serverError}</p>
+            )}
+
             <Button
               type="submit"
               className="w-full h-11 rounded-full"
               disabled={form.formState.isSubmitting}
             >
-              Log in
+              {form.formState.isSubmitting ? "Logging in..." : "Log in"}
             </Button>
 
             <Button

@@ -1,4 +1,3 @@
-// src/components/set/SetFormContainer.tsx
 import { Button } from "@/components/ui/Button";
 import { ArrowLeft, ToggleRight, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -10,6 +9,7 @@ import { SetForm } from "./SetForm";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { ModalPublicSet } from "./ModalPuclicSet";
+import { cn } from "@/lib/utils";
 
 export type SubmitAction = "create" | "create_and_study" | "update";
 
@@ -18,6 +18,7 @@ type Props = {
   onSubmit: (data: SetFormValues, action: SubmitAction) => Promise<void> | void;
   submitLabel: string;
   showStudyButton?: boolean;
+  onCancel?: () => void;
 };
 
 export function SetFormContainer({
@@ -49,6 +50,7 @@ export function SetFormContainer({
     control,
     name: "cards",
   });
+
   const handleClearAllCards = () => {
     if (!fields.length) return;
 
@@ -61,14 +63,18 @@ export function SetFormContainer({
   const handleFormSubmit = async (data: SetFormValues) => {
     await onSubmit(data, submitAction);
   };
+  const handleCancel = () => {
+    navigate(-1);
+  };
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [openPublicModal, setOpenPublicModal] = useState(false);
+  const isPublic = methods.watch("is_public");
 
   return (
     <FormProvider {...methods}>
       <form
         onSubmit={handleSubmit(handleFormSubmit)}
-        className="min-h-screen px-12 py-6 space-y-6"
+        className="min-h-screen px-[4vw] py-4 space-y-4"
       >
         <div
           className="flex items-center gap-2 cursor-pointer w-fit"
@@ -87,10 +93,12 @@ export function SetFormContainer({
             >
               Public
             </span>
-
             <ToggleRight
-              className="h-5 w-5 text-primary cursor-pointer"
-              onClick={() => setOpenPublicModal(true)}
+              className={cn(
+                "h-5 w-5 cursor-pointer",
+                isPublic ? "text-muted-foreground" : "text-primary"
+              )}
+              onClick={() => methods.setValue("is_public", !isPublic)}
             />
           </div>
 
@@ -194,6 +202,15 @@ export function SetFormContainer({
         </div>
 
         <div className="bottom-0 left-0 w-full p-4 flex justify-end gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleCancel}
+            className="rounded-full"
+          >
+            Cancel
+          </Button>
+
           {showStudyButton && (
             <Button
               type="submit"

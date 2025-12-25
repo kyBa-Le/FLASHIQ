@@ -1,9 +1,6 @@
-export type SetFormValues = {
+export interface CreateSetDto {
   title: string;
   description?: string;
-  is_public: boolean;
-  term: string;
-  definition: string;
-  example?: string;
-  image?: string;
-};
+  isPublic?: boolean;
+  ownerId: string;
+}

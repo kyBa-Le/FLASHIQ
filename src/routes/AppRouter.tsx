@@ -20,23 +20,15 @@ function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/login" element={<LoginPage />} />
 
-        <Route element={<MainLayout />}>
-          <Route path="/" element={<HomeUserPage />} />
-          <Route path="/library" element={<LibraryPage />} />
-        </Route>
-        <Route element={<EditorLayout />}>
-          <Route path="/sets/create" element={<CreateSetPage />} />
-          <Route path="/sets/:id/edit" element={<EditSetPage />} />
-        </Route>
         <Route element={<ProtectedRoute />}>
-          {/* <Route element={<MainLayout />}>
+          <Route element={<MainLayout />}>
             <Route path="/" element={<HomeUserPage />} />
             <Route path="/library" element={<LibraryPage />} />
           </Route>
           <Route element={<EditorLayout />}>
             <Route path="/sets/create" element={<CreateSetPage />} />
             <Route path="/sets/:id/edit" element={<EditSetPage />} />
-          </Route> */}
+          </Route>{" "}
         </Route>
 
         <Route path="*" element={<NotFound />} />

@@ -1,9 +1,9 @@
 // src/schemas/set.schema.ts
 import { z } from "zod";
 
-export const cardSchema = z.object({
-  term: z.string().min(1, "Term is required"),
-  definition: z.string().min(1, "Definition is required"),
+export const cardDraftSchema = z.object({
+  term: z.string().optional(),
+  definition: z.string().optional(),
   example: z.string().optional(),
 });
 
@@ -21,7 +21,7 @@ export const setSchema = z.object({
 
   is_public: z.boolean(),
 
-  cards: z.array(cardSchema).min(1, "At least two card is required"),
+  cards: z.array(cardDraftSchema).min(1, "At least two card is required"),
 });
 
 export type SetFormValues = z.infer<typeof setSchema>;

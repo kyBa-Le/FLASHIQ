@@ -1,13 +1,15 @@
+import React from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ListItemContent } from "@/components/card-content/ListItemContent";
-import { NavLink } from "react-router-dom";
-import { Search, ArrowRightIcon, Folder } from "lucide-react";
-import React from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { Search, ArrowRightIcon, Folder, Pencil } from "lucide-react";
+
+type LibraryTab = "flashcard" | "folder";
 
 export default function LibraryPage() {
-  const [activeTab, setActiveTab] = React.useState("flashcard");
+  const [activeTab, setActiveTab] = React.useState<LibraryTab>("flashcard");
 
   const today = [
     { id: 1, title: "Animals", word_count: 10, username: "Cong Doan" },
@@ -32,52 +34,42 @@ export default function LibraryPage() {
   const folders = [
     { id: 1, title: "TOEIC", totalSets: 5 },
     { id: 2, title: "IELTS", totalSets: 8 },
+    { id: 3, title: "GRE", totalSets: 12 },
   ];
-
   return (
-    <div className="max-w-3xl mx-auto space-y-8">
-      <div className="space-y-4">
+    <div className="w-full max-w-[70vw] px-[4vw] py-[3vh] space-y-[4vh]">
+      <header className="space-y-[3vh]">
         <h1 className="text-xl font-semibold">Your Library</h1>
 
         <Tabs
           value={activeTab}
-          onValueChange={setActiveTab}
-          className="border-b"
+          onValueChange={(value) => setActiveTab(value as LibraryTab)}
+          className="border-b bg-none"
         >
-          <TabsList>
-            <TabsTrigger
-              value="flashcard"
-              className="border-b-2 px-4 py-2 data-[state=active]:border-primary data-[state=active]:font-medium"
-            >
-              Flashcard
-            </TabsTrigger>
-            <TabsTrigger
-              value="folder"
-              className="border-b-2 px-4 py-2 data-[state=active]:border-primary data-[state=active]:font-medium"
-            >
-              Folder
-            </TabsTrigger>
+          <TabsList className="flex gap-[1.5vw] bg-none">
+            <TabsTrigger value="flashcard">Flashcard</TabsTrigger>
+            <TabsTrigger value="folder">Folder</TabsTrigger>
           </TabsList>
 
-          <div className="flex items-center justify-between gap-4 mt-6">
-            <button className="inline-flex items-center rounded-md bg-secondary text-white px-3 py-1 text-sm">
+          <div className="mt-[3vh] flex items-center justify-between gap-[2vw]">
+            <button className="inline-flex items-center rounded-md bg-secondary px-3 py-1 text-sm text-white">
               Recent <ArrowRightIcon className="ml-1 h-4 w-4" />
             </button>
 
-            <div className="relative w-64">
+            <div className="relative w-[18vw] min-w-[220px]">
               <Input
                 placeholder={
                   activeTab === "flashcard"
-                    ? "Search Flashcard"
-                    : "Search Folder"
+                    ? "Search flashcards"
+                    : "Search folders"
                 }
-                className="border bg-white rounded-md px-3 py-2 text-sm w-full"
+                className="w-full pr-9 rounded-md "
               />
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Search className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             </div>
           </div>
 
-          <TabsContent value="flashcard" className="space-y-8 mt-6">
+          <TabsContent value="flashcard" className="mt-[4vh] space-y-[4vh] ">
             <Section title="Today">
               {today.map((item) => (
                 <LibraryItem key={item.id} item={item} />
@@ -91,18 +83,14 @@ export default function LibraryPage() {
             </Section>
           </TabsContent>
 
-          <TabsContent value="folder" className="space-y-4 mt-6">
+          <TabsContent value="folder" className="mt-[4vh] space-[2vh]">
             {folders.map((folder) => (
-              <NavLink
-                key={folder.id}
-                to={`/folder/${folder.id}`}
-                className="block"
-              >
-                <Card variant="flashcard">
+              <NavLink key={folder.id} to={`/folder/${folder.id}`}>
+                <Card variant="flashcard" className="mb-2">
                   <div className="flex items-center gap-3">
                     <Folder className="h-5 w-5 text-primary" />
-                    <div>
-                      <p className="font-medium">{folder.title}</p>
+                    <div className="min-w-0">
+                      <p className="truncate font-medium">{folder.title}</p>
                       <p className="text-sm text-muted-foreground">
                         {folder.totalSets} sets
                       </p>
@@ -113,7 +101,7 @@ export default function LibraryPage() {
             ))}
           </TabsContent>
         </Tabs>
-      </div>
+      </header>
     </div>
   );
 }
@@ -139,16 +127,47 @@ function Section({
 function LibraryItem({
   item,
 }: {
-  item: { id: number; title: string; word_count: number; username: string };
+  item: {
+    id: number;
+    title: string;
+    word_count: number;
+    username: string;
+  };
 }) {
+  const navigate = useNavigate();
+
+  const handleEdit = (e: {
+    preventDefault: () => void;
+    stopPropagation: () => void;
+  }) => {
+    e.preventDefault(); // chặn NavLink
+    e.stopPropagation();
+    navigate(`/sets/${item.id}/edit`);
+  };
+
   return (
     <li>
-      <NavLink to={`/card/${item.id}`} className="block">
+      <NavLink to={`/card/${item.id}`} className="group block relative">
         <Card variant="flashcard">
-          <ListItemContent
-            title={item.title}
-            meta={`${item.word_count} words | ${item.username}`}
-          />
+          <div className="flex items-center justify-between gap-3">
+            <ListItemContent
+              title={item.title}
+              meta={`${item.word_count} words | ${item.username}`}
+            />
+            <button
+              onClick={handleEdit}
+              className="
+    flex items-center justify-center
+    h-8 w-8
+    rounded-md
+    text-muted-foreground
+    hover:bg-muted
+    hover:text-primary
+  "
+            >
+              <Pencil className="h-4 w-4" />
+            </button>
+          </div>
         </Card>
       </NavLink>
     </li>
