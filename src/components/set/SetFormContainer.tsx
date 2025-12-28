@@ -1,48 +1,66 @@
-import { Button } from "@/components/ui/Button";
-import { ArrowLeft, ToggleRight, Trash2 } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { useForm, FormProvider, useFieldArray } from "react-hook-form";
+import { useState, useEffect } from "react";
+import { FormProvider, useForm, useFieldArray } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate } from "react-router-dom";
+
 import { setSchema, type SetFormValues } from "@/schema/flashCard.schema";
 import { SetForm } from "./SetForm";
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { SetFormHeader } from "./SetFormHeader";
+import { SetFormControls } from "./SetFormControls";
+import { SetFormFooter } from "./SetFormFooter";
 import { ModalPublicSet } from "./ModalPuclicSet";
-import { cn } from "@/lib/utils";
+import { InputSet } from "../common/InputSet";
+import { Textarea } from "../ui/textarea";
 
 export type SubmitAction = "create" | "create_and_study" | "update";
+export type Mode = "create" | "view" | "edit";
 
 type Props = {
   defaultValues: SetFormValues;
-  onSubmit: (data: SetFormValues, action: SubmitAction) => Promise<void> | void;
+  mode: Mode;
   submitLabel: string;
   showStudyButton?: boolean;
-  onCancel?: () => void;
+  onSubmit: (data: SetFormValues, action: SubmitAction) => Promise<void>;
+  onDelete?: () => void;
+  onEdit?: () => void;
+  draftKey?: string;
 };
 
 export function SetFormContainer({
   defaultValues,
-  onSubmit,
+  mode,
   submitLabel,
   showStudyButton = false,
+  onSubmit,
+  onDelete,
+  onEdit,
+  draftKey,
 }: Props) {
   const navigate = useNavigate();
+  const isViewMode = mode === "view";
+  const isCreateMode = mode === "create";
+  const isEditMode = mode === "edit";
+
   const [submitAction, setSubmitAction] = useState<SubmitAction>(
-    showStudyButton ? "create" : "update"
+    isCreateMode ? "create" : "update"
   );
+  const [openPublicModal, setOpenPublicModal] = useState(false);
 
   const methods = useForm<SetFormValues>({
-    resolver: zodResolver(setSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(setSchema) as any,
     defaultValues,
-    mode: "onSubmit",
-    reValidateMode: "onChange",
   });
+  const { reset } = methods;
 
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
   const {
     register,
-    handleSubmit,
     control,
+    handleSubmit,
+    watch,
     formState: { isSubmitting, errors },
   } = methods;
 
@@ -51,189 +69,106 @@ export function SetFormContainer({
     name: "cards",
   });
 
-  const handleClearAllCards = () => {
-    if (!fields.length) return;
+  const isPublic = watch("isPublic");
 
-    const ok = confirm("Delete all cards?");
-    if (!ok) return;
-
-    remove();
-  };
+  useEffect(() => {
+    if ((isEditMode || isCreateMode) && draftKey) {
+      const subscription = watch((value) => {
+        localStorage.setItem(draftKey, JSON.stringify(value));
+      });
+      return () => subscription.unsubscribe();
+    }
+  }, [watch, isEditMode, isCreateMode, draftKey]);
 
   const handleFormSubmit = async (data: SetFormValues) => {
+    if (isViewMode) return;
     await onSubmit(data, submitAction);
   };
-  const handleCancel = () => {
-    navigate(-1);
+
+  const submitWithAction = (action: SubmitAction) => {
+    setSubmitAction(action);
+    handleSubmit(handleFormSubmit)();
   };
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [openPublicModal, setOpenPublicModal] = useState(false);
-  const isPublic = methods.watch("is_public");
 
   return (
     <FormProvider {...methods}>
-      <form
-        onSubmit={handleSubmit(handleFormSubmit)}
-        className="min-h-screen px-[4vw] py-4 space-y-4"
-      >
-        <div
-          className="flex items-center gap-2 cursor-pointer w-fit"
-          onClick={() => navigate(-1)}
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <span>Back</span>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span
-              className="px-4 py-1 rounded-full bg-purple-600 text-sm text-white
-                 cursor-pointer hover:bg-purple-500 transition"
-              onClick={() => setOpenPublicModal(true)}
-            >
-              Public
-            </span>
-            <ToggleRight
-              className={cn(
-                "h-5 w-5 cursor-pointer",
-                isPublic ? "text-muted-foreground" : "text-primary"
-              )}
-              onClick={() => methods.setValue("is_public", !isPublic)}
-            />
-          </div>
-
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            onClick={() =>
-              setSubmitAction(showStudyButton ? "create" : "update")
-            }
-            className="rounded-full"
-          >
-            {submitLabel}
-          </Button>
-        </div>
+      <form className="min-h-screen px-12 py-4 space-y-4">
+        <SetFormHeader
+          mode={mode}
+          isPublic={isPublic}
+          submitLabel={submitLabel}
+          isSubmitting={isSubmitting}
+          onBack={() => navigate("/library")}
+          onEdit={onEdit}
+          onDelete={onDelete}
+          onTogglePublic={() => methods.setValue("isPublic", !isPublic)}
+          onOpenPublicModal={() => setOpenPublicModal(true)}
+          onSubmit={() => submitWithAction(isCreateMode ? "create" : "update")}
+        />
 
         <div className="space-y-4">
-          <div className="space-y-1">
-            <Input
-              placeholder="Title"
-              {...register("title")}
-              className="border bg-white shadow-sm rounded-md px-3 py-2 text-sm w-full"
-            />
-            {errors.title && (
-              <p className="text-sm text-red-500">{errors.title.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-1">
-            <Textarea
-              placeholder="Description"
-              {...register("description")}
-              className="bg-background"
-            />
-            {errors.description && (
-              <p className="text-sm text-red-500">
-                {errors.description.message}
-              </p>
-            )}
-          </div>
-        </div>
-        <div className="flex items-center justify-between">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="rounded-full px-4"
-          >
-            + Import
-          </Button>
-
-          <div className="flex items-center gap-3">
-            {/* <Pencil
-              className="h-5 w-5 cursor-pointer text-muted-foreground hover:text-primary transition"
-              onClick={() =>
-                navigate(`/sets/${id}/edit`, {
-                  state: { from: location.pathname },
-                })
-              }
-            /> */}
-            {fields.length > 0 && (
-              <Trash2
-                className="h-5 w-5 cursor-pointer text-muted-foreground hover:text-destructive transition"
-                onClick={handleClearAllCards}
-              />
-            )}
-          </div>
-          <ModalPublicSet
-            open={openPublicModal}
-            onClose={() => setOpenPublicModal(false)}
-            defaultRole="viewer"
-            onSave={(role) => {
-              console.log("Public role:", role);
-
-              methods.setValue("is_public", true);
-              // methods.setValue("public_role", role);
-
-              setOpenPublicModal(false);
-            }}
+          <InputSet
+            placeholder="Title"
+            disabled={isViewMode}
+            {...register("title")}
           />
-        </div>
-
-        <div className="space-y-4">
-          {fields.map((field, index) => (
-            <SetForm
-              key={field.id}
-              index={index}
-              onRemove={() => remove(index)}
-            />
-          ))}
-        </div>
-
-        <div className="flex justify-center">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => append({ term: "", definition: "", example: "" })}
-            className="rounded-full"
-          >
-            Add Card
-          </Button>
-        </div>
-
-        <div className="bottom-0 left-0 w-full p-4 flex justify-end gap-3">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={handleCancel}
-            className="rounded-full"
-          >
-            Cancel
-          </Button>
-
-          {showStudyButton && (
-            <Button
-              type="submit"
-              variant="secondary"
-              disabled={isSubmitting}
-              onClick={() => setSubmitAction("create_and_study")}
-              className="rounded-full"
-            >
-              Create & Study
-            </Button>
+          {errors.title && (
+            <p className="text-sm text-red-500">{errors.title.message}</p>
           )}
 
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            onClick={() =>
-              setSubmitAction(showStudyButton ? "create" : "update")
-            }
-            className="rounded-full"
-          >
-            {submitLabel}
-          </Button>
+          <Textarea
+            placeholder="Description"
+            disabled={isViewMode}
+            {...register("description")}
+          />
+          {errors.description && (
+            <p className="text-sm text-red-500">{errors.description.message}</p>
+          )}
         </div>
+        {!isViewMode && (
+          <SetFormControls
+            control={control}
+            onImport={() =>
+              append({ term: "", definition: "", example: "", image_url: "" })
+            }
+            onDeleteAllCards={async () => {
+              if (fields.length === 0) return;
+              for (let i = fields.length - 1; i >= 0; i--) remove(i);
+            }}
+          />
+        )}
+        {fields.map((field, index) => (
+          <SetForm
+            key={field.id}
+            index={index}
+            disabled={isViewMode}
+            onRemove={isViewMode ? undefined : () => remove(index)}
+          />
+        ))}
+        {!isViewMode && (
+          <SetFormFooter
+            submitLabel={submitLabel}
+            showStudyButton={showStudyButton}
+            isSubmitting={isSubmitting}
+            onAddCard={() =>
+              append({ term: "", definition: "", example: "", image_url: "" })
+            }
+            onCancel={() => navigate("/library")}
+            onSubmit={() =>
+              submitWithAction(isCreateMode ? "create" : "update")
+            }
+            onCreateAndStudy={() => submitWithAction("create_and_study")}
+          />
+        )}
+        <ModalPublicSet
+          open={openPublicModal}
+          onClose={() => setOpenPublicModal(false)}
+          defaultRole="viewer"
+          onSave={() => {
+            methods.setValue("isPublic", true);
+            setOpenPublicModal(false);
+          }}
+        />
       </form>
     </FormProvider>
   );

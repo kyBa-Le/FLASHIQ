@@ -1,72 +1,81 @@
-// src/pages/EditSetPage.tsx
-import { SetFormContainer } from "@/components/set/SetFormContainer";
 import { useParams, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { SetFormContainer } from "@/components/set/SetFormContainer";
+import { useSetDetail } from "@/hooks/useSetDetail";
+import { SetService } from "@/services/set.service";
+import { CardService } from "@/services/card.service";
+import { useSetStore } from "@/store/set.store";
 import type { SetFormValues } from "@/schema/flashCard.schema";
 
 export default function EditSetPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const updateCountsCache = useSetStore((s) => s.updateCountsCache);
+  const { set, cards, loading } = useSetDetail(id);
 
-  const [initialData, setInitialData] =
-    useState<SetFormValues | null>(null);
-  const [loading, setLoading] = useState(true);
+  const draftKey = `set-draft-${id}`;
 
-  useEffect(() => {
-    if (!id) return;
+  if (loading && !set)
+    return <div className="p-6 text-muted-foreground">Loading...</div>;
+  if (!set) return <div className="p-6 text-destructive">Set not found</div>;
 
-    const fetchSetDetail = async () => {
-      setLoading(true);
-
-      // Mock API
-      const data: SetFormValues = {
-        title: "Common English Phrases",
-        description: "Used in daily conversation",
-        is_public: true,
-        cards: [
-          {
-            term: "Break the ice",
-            definition: "Phá vỡ bầu không khí",
-            example: "He told a joke to break the ice.",
-          },
-          {
-            term: "Hit the books",
-            definition: "Học chăm chỉ",
-            example: "I need to hit the books tonight.",
-          },
-        ],
+  const draft = localStorage.getItem(draftKey);
+  const defaultValues: SetFormValues = draft
+    ? JSON.parse(draft)
+    : {
+        id: set.id,
+        title: set.title,
+        description: set.description ?? "",
+        isPublic: set.isPublic ?? false,
+        cards: cards.map((c) => ({
+          id: c.id,
+          term: c.term,
+          definition: c.definition,
+          example: c.example ?? "",
+        })),
       };
 
-      setInitialData(data);
-      setLoading(false);
-    };
-
-    fetchSetDetail();
-  }, [id]);
-
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleUpdate = async (data: SetFormValues) => {
     if (!id) return;
 
-    console.log("UPDATE SET:", id, data);
+    try {
+      await SetService.updateSet(id, {
+        title: data.title,
+        description: data.description ?? "",
+        isPublic: data.isPublic ?? false,
+      });
 
-    // await setService.update(id, data);
+      const validCards = data.cards.filter((c) => c.term && c.definition);
 
-    navigate("/library");
+      const cardPromises = validCards.map((card) => {
+        if (card.id) {
+          return CardService.updateCard(card.id, {
+            term: card.term ?? "",
+            definition: card.definition ?? "",
+            example: card.example ?? "",
+          });
+        }
+        return SetService.bulkAddCards(id, [card]);
+      });
+
+      await Promise.all(cardPromises);
+
+      updateCountsCache(id, validCards.length);
+
+      localStorage.removeItem(draftKey);
+      navigate("/library");
+    } catch (error) {
+      console.error("Update failed:", error);
+    }
   };
-
-  if (loading) {
-    return <div className="p-6 text-sm text-muted-foreground">Loading...</div>;
-  }
-
-  if (!initialData) {
-    return <div className="p-6 text-sm text-destructive">Set not found</div>;
-  }
 
   return (
     <SetFormContainer
+      mode="edit"
+      defaultValues={defaultValues}
       submitLabel="Save Changes"
-      defaultValues={initialData}
       onSubmit={handleUpdate}
+      draftKey={draftKey}
     />
   );
 }

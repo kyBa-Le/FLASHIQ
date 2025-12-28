@@ -9,9 +9,14 @@ import {
   CreateSetPage,
   EditSetPage,
 } from "./lazyPages";
-import NotFound from "@/pages/NotFound";
-import SignupPage from "@/pages/Signup";
+import SignupPage from "@/pages/SignupPage";
+import VerifyEmailNoticePage from "@/pages/VerifyEmailNoticePage";
+import VerifyEmailFailPage from "@/pages/VerifyEmailFailPage";
+import VerifyEmailSuccessPage from "@/pages/VerifyEmailSuccessPage";
+import VerifyEmailHandlerPage from "@/pages/VerifyEmailHandlerPage";
 import EditorLayout from "@/layouts/EditorLayout";
+import UpcomingPage from "@/pages/UpcomingPage";
+import ViewDetailSetPage from "@/pages/ViewDetailSet";
 
 function App() {
   return (
@@ -19,6 +24,10 @@ function App() {
       <Routes>
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/verify-email" element={<VerifyEmailNoticePage />} />
+        <Route path="/verify-email/handle" element={<VerifyEmailHandlerPage />} />
+        <Route path="/verification-success" element={<VerifyEmailSuccessPage />} />
+        <Route path="/verification-failed" element={<VerifyEmailFailPage />} />
 
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>
@@ -28,10 +37,11 @@ function App() {
           <Route element={<EditorLayout />}>
             <Route path="/sets/create" element={<CreateSetPage />} />
             <Route path="/sets/:id/edit" element={<EditSetPage />} />
-          </Route>{" "}
+            <Route path="/sets/:id/view" element={<ViewDetailSetPage />} />
+          </Route>
         </Route>
 
-        <Route path="*" element={<NotFound />} />
+        <Route path="*" element={<UpcomingPage />} />
       </Routes>
     </Suspense>
   );

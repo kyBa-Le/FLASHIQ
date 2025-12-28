@@ -1,27 +1,24 @@
-// src/schemas/set.schema.ts
 import { z } from "zod";
 
-export const cardDraftSchema = z.object({
-  term: z.string().optional(),
-  definition: z.string().optional(),
-  example: z.string().optional(),
+export const cardSchema = z.object({
+  id: z.string().optional(),
+  term: z.string().default(""),
+  definition: z.string().default(""),
+  example: z.string().optional().default(""),
+  image_url: z.string().optional().default(""),
 });
 
 export const setSchema = z.object({
-  title: z
-    .string()
-    .min(1, "Title is required")
-    .max(100, "Title must be under 100 characters"),
-
+  id: z.string().optional(),
+  title: z.string().min(1, "Title is required"),
   description: z
     .string()
-    .max(500, "Description must be under 500 characters")
-    .optional()
-    .or(z.literal("")),
-
-  is_public: z.boolean(),
-
-  cards: z.array(cardDraftSchema).min(1, "At least two card is required"),
+    .nullish()
+    .transform((val) => val ?? "")
+    .default(""),
+  isPublic: z.boolean().default(false),
+  cards: z.array(cardSchema).default([]),
 });
 
 export type SetFormValues = z.infer<typeof setSchema>;
+export type CardFormValues = z.infer<typeof cardSchema>;

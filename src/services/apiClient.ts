@@ -16,6 +16,19 @@ const apiClient = axios.create({
   },
 });
 
+apiClient.interceptors.request.use(
+  (config) => {
+    const accessToken = localStorage.getItem("accessToken");
+    if (accessToken && config.headers) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+    console.log(config.headers.Authorization)
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {

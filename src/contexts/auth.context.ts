@@ -1,16 +1,15 @@
 import { createContext } from "react";
+import type { JwtPayload } from "@/utils/jwt";
 import type { LoginDto } from "@/types/auth.type";
 
-export interface AuthContextType {
+export interface AuthContextValue {
+  user: JwtPayload | null;
   isAuthenticated: boolean;
   loading: boolean;
-  login: (payload: LoginDto) => Promise<void>;
-  logout: () => Promise<void>;
+  login: (data: LoginDto) => Promise<void>;
+  logout: () => void;
 }
 
-export const AuthContext = createContext<AuthContextType>({
-  isAuthenticated: false,
-  loading: false,
-  login: async () => {},
-  logout: async () => {},
-});
+export const AuthContext = createContext<AuthContextValue>(
+  {} as AuthContextValue
+);
