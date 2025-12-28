@@ -1,13 +1,22 @@
 import { Routes, Route } from "react-router-dom";
 import { Suspense } from "react";
 import ProtectedRoute from "../routes/ProtectedRoute";
-import { HomePage, LoginPage } from "../routes/lazyPages";
-import NotFound from "@/pages/NotFound";
+import MainLayout from "../layouts/MainLayout";
+import {
+  HomeUserPage,
+  LoginPage,
+  LibraryPage,
+  CreateSetPage,
+  EditSetPage,
+} from "./lazyPages";
 import SignupPage from "@/pages/SignupPage";
 import VerifyEmailNoticePage from "@/pages/VerifyEmailNoticePage";
 import VerifyEmailFailPage from "@/pages/VerifyEmailFailPage";
 import VerifyEmailSuccessPage from "@/pages/VerifyEmailSuccessPage";
 import VerifyEmailHandlerPage from "@/pages/VerifyEmailHandlerPage";
+import EditorLayout from "@/layouts/EditorLayout";
+import UpcomingPage from "@/pages/UpcomingPage";
+import ViewDetailSetPage from "@/pages/ViewDetailSet";
 
 function App() {
   return (
@@ -21,9 +30,18 @@ function App() {
         <Route path="/verification-failed" element={<VerifyEmailFailPage />} />
 
         <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<HomePage />} />
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<HomeUserPage />} />
+            <Route path="/library" element={<LibraryPage />} />
+          </Route>
+          <Route element={<EditorLayout />}>
+            <Route path="/sets/create" element={<CreateSetPage />} />
+            <Route path="/sets/:id/edit" element={<EditSetPage />} />
+            <Route path="/sets/:id/view" element={<ViewDetailSetPage />} />
+          </Route>
         </Route>
-        <Route path="*" element={<NotFound />} />
+
+        <Route path="*" element={<UpcomingPage />} />
       </Routes>
     </Suspense>
   );
