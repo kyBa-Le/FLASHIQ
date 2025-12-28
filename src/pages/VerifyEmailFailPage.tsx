@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { NavLink, useSearchParams } from "react-router-dom";
 import axios from "axios";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Cancel from "/assets/cancel.svg";

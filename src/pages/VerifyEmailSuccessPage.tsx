@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import AcceptTick from "/assets/accept-tick.svg";
 
 export default function VerifyEmailSuccess() {

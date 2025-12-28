@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 import Gmail from "/assets/gmail-logo.svg";
 
 interface VerifyEmailNoticeProps {

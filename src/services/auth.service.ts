@@ -4,7 +4,10 @@ import type { SignupDto } from "@/types/auth.type";
 import type { LoginDto } from "@/types/auth.type";
 
 export function register(payload: SignupDto) {
-  const body = { ...payload, ...(payload.username ? { name: payload.username } : {}) };
+  const body = {
+    ...payload,
+    ...(payload.username ? { name: payload.username } : {}),
+  };
   return apiClient.post("/api/v1/auth/register", body);
 }
 
@@ -15,12 +18,19 @@ export async function login(payload: LoginDto) {
 
 export async function refreshToken() {
   const res = await apiClient.post("/api/v1/auth/refresh");
-  return res.data;
+  return res.data.data.accessToken;
 }
 
 export function logout() {
-  return apiClient.post("/api/v1/auth/logout");
-} 
+  // Xóa access token khỏi localStorage
+  localStorage.removeItem("accessToken");
+
+  // Nếu có refresh token, cũng xóa luôn
+  localStorage.removeItem("refreshToken");
+
+  // Chuyển hướng về trang login (tuỳ dự án)
+  window.location.href = "/login";
+}
 
 export const verifyEmail = (token: string) => {
   return axios.get("api/v1/auth/verify-email", {
