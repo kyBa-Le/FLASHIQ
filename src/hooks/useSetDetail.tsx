@@ -1,50 +1,56 @@
-// src/hooks/useSetDetail.ts
 import { CardService } from "@/services/card.service";
 import { SetService } from "@/services/set.service";
-import { useSetStore } from "@/store/set.store"; // Import store
+import { useSetStore } from "@/store/set.store";
 import type { CardItem, SetItem } from "@/types/types";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 export function useSetDetail(setId?: string) {
-  const fetchedRef = useRef<string | null>(null);
   const [set, setSet] = useState<SetItem | null>(null);
   const [cards, setCards] = useState<CardItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); 
+  const [error, setError] = useState<string | null>(null);
 
-  // Lấy các hàm từ Zustand
   const updateCountsCache = useSetStore((s) => s.updateCountsCache);
   const removeSetFromStore = useSetStore((s) => s.removeSet);
 
   const fetchData = useCallback(async () => {
     if (!setId) return;
+
     setLoading(true);
+    setError(null);
+
     try {
+      // Sử dụng Promise.all để lấy dữ liệu song song (chỉ 2 requests nên an toàn, không gây 429)
       const [setRes, cardsRes] = await Promise.all([
         SetService.getSetById(setId),
         SetService.getSetCards(setId),
       ]);
 
-      setSet(setRes.data);
-      setCards(cardsRes.data);
+      const setData = setRes.data || setRes;
+      const cardsData = cardsRes.data || [];
 
-      updateCountsCache(setId, cardsRes.data.length);
+      setSet(setData);
+      setCards(cardsData);
+
+      updateCountsCache(setId, cardsData.length);
     } catch (err) {
       console.error("Failed to fetch set detail", err);
+      setError("Failed to load set details. Please try again.");
     } finally {
       setLoading(false);
     }
   }, [setId, updateCountsCache]);
 
   useEffect(() => {
-    if (!setId || fetchedRef.current === setId) return;
-    fetchedRef.current = setId;
-    fetchData();
+    if (setId) {
+      fetchData();
+    }
   }, [setId, fetchData]);
 
   const deleteSet = async () => {
     if (!setId) return false;
     try {
-      await SetService.deleteSet(setId);
+      await SetService.deleteSet(setId); 
       removeSetFromStore(setId); 
       return true;
     } catch (err) {
@@ -54,11 +60,12 @@ export function useSetDetail(setId?: string) {
   };
 
   const deleteCard = async (cardId: string) => {
+    if (!setId) return false;
     try {
-      await CardService.deleteCard(cardId);
+      await CardService.deleteCard(cardId); //
       const newCards = cards.filter((c) => c.id !== cardId);
       setCards(newCards);
-      updateCountsCache(setId!, newCards.length);
+      updateCountsCache(setId, newCards.length); 
       return true;
     } catch (err) {
       console.error("Delete card error:", err);
@@ -66,5 +73,13 @@ export function useSetDetail(setId?: string) {
     }
   };
 
-  return { set, cards, loading, refresh: fetchData, deleteSet, deleteCard };
+  return {
+    set,
+    cards,
+    loading,
+    error,
+    refresh: fetchData,
+    deleteSet,
+    deleteCard,
+  };
 }

@@ -17,6 +17,7 @@ export default function LoginPage() {
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
+    mode: "onTouched",
     defaultValues: {
       email: "",
       password: "",
@@ -28,18 +29,30 @@ export default function LoginPage() {
     try {
       await login(data);
       navigate("/");
-    } catch (err) {
-      if (err instanceof Error) {
-        const msg = err.message.toLowerCase();
-        if (msg.includes("email")) {
-          form.setError("email", { type: "server", message: err.message });
-          return;
-        }
-        if (msg.includes("password")) {
-          form.setError("password", { type: "server", message: err.message });
-          return;
-        }
-        setServerError(err.message);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      const errorResponse = err.response?.data;
+      const backendErrors = errorResponse?.errors;
+
+      if (Array.isArray(backendErrors) && backendErrors.length > 0) {
+        backendErrors.forEach((msg: string) => {
+          const lowerMsg = msg.toLowerCase();
+
+          if (lowerMsg.includes("email")) {
+            form.setError("email", { type: "server", message: msg });
+          } else if (
+            lowerMsg.includes("password") ||
+            lowerMsg.includes("mật khẩu")
+          ) {
+            form.setError("password", { type: "server", message: msg });
+          } else {
+            setServerError(msg);
+          }
+        });
+      } else {
+        setServerError(
+          errorResponse?.message || "Đã xảy ra lỗi không xác định"
+        );
       }
     }
   };

@@ -10,21 +10,29 @@ type Props = {
 
 export function CardImageField({ field, disabled }: Props) {
   const preview = useMemo(() => {
-    if (!field.value) return null;
-    if (typeof field.value === "string") return field.value;
-    return URL.createObjectURL(field.value);
+    const value = field.value as unknown;
+
+    if (!value) return null;
+
+    if (typeof value === "string") return value;
+
+    if (value instanceof File || value instanceof Blob) {
+      return URL.createObjectURL(value);
+    }
+
+    return null;
   }, [field.value]);
 
   useEffect(() => {
     return () => {
-      if (preview && typeof field.value !== "string") {
+      if (preview && preview.startsWith("blob:")) {
         URL.revokeObjectURL(preview);
       }
     };
-  }, [preview, field.value]);
+  }, [preview]);
 
   return (
-    <div className="w-full flex-1 mt-3 border border-dashed rounded-xl flex flex-col items-center justify-center relative overflow-hidden">
+    <div className="w-full flex-1 mt-3 border border-dashed rounded-xl flex flex-col items-center justify-center relative overflow-hidden min-h-[100px] bg-muted/30">
       {preview ? (
         <>
           <img
@@ -32,12 +40,11 @@ export function CardImageField({ field, disabled }: Props) {
             alt="preview"
             className="absolute inset-0 w-full h-full object-cover"
           />
-
           {!disabled && (
             <button
               type="button"
-              onClick={() => field.onChange(undefined)}
-              className="absolute top-2 right-2 bg-background rounded-full p-1 shadow"
+              onClick={() => field.onChange("")}
+              className="absolute top-2 right-2 bg-background/80 backdrop-blur-sm rounded-full p-1 hover:bg-background"
             >
               <X className="h-4 w-4" />
             </button>
@@ -45,10 +52,9 @@ export function CardImageField({ field, disabled }: Props) {
         </>
       ) : (
         !disabled && (
-          <>
-            <ImagePlus className="h-5 w-5 mb-1" />
-            <span>Upload image</span>
-
+          <div className="flex flex-col items-center cursor-pointer">
+            <ImagePlus className="h-5 w-5 mb-1 text-muted-foreground" />
+            <span className="text-xs text-muted-foreground">Upload</span>
             <input
               type="file"
               accept="image/*"
@@ -58,7 +64,7 @@ export function CardImageField({ field, disabled }: Props) {
                 if (file) field.onChange(file);
               }}
             />
-          </>
+          </div>
         )
       )}
     </div>

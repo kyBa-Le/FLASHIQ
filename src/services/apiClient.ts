@@ -11,41 +11,37 @@ interface AxiosRequestConfigWithRetry extends AxiosRequestConfig {
 const apiClient = axios.create({
   baseURL: API_BASE,
   withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-  },
+  headers: { "Content-Type": "application/json" },
 });
 
-apiClient.interceptors.request.use(
-  (config) => {
-    const accessToken = localStorage.getItem("accessToken");
-    if (accessToken && config.headers) {
-      config.headers.Authorization = `Bearer ${accessToken}`;
-    }
-    console.log(config.headers.Authorization)
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
+apiClient.interceptors.request.use((config) => {
+  const accessToken = localStorage.getItem("accessToken");
+  if (accessToken && config.headers) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
+  }
+  return config;
+});
 
 apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config as AxiosRequestConfigWithRetry;
 
-    if (
-      error.response?.status === 401 &&
-      !originalRequest._retry &&
-      !originalRequest.url?.includes("/api/v1/auth/refresh")
-    ) {
+    if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
+
       try {
-        await refreshToken();
+        const newAccessToken = await refreshToken();
+
+        if (originalRequest.headers) {
+          originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+          console.log(originalRequest.headers.Authorization);
+        }
+
         return apiClient(originalRequest);
-      } catch {
+      } catch (refreshError) {
         await logout();
-        return Promise.reject(error);
+        return Promise.reject(refreshError);
       }
     }
 

@@ -1,15 +1,15 @@
 import React, { useMemo, useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { ListItemContent } from "@/components/card-content/ListItemContent";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { Search, ArrowRightIcon, Folder } from "lucide-react";
 import { useUserSets } from "@/hooks/useUserSet";
 import { useAuthStore } from "@/store/auth.store";
 import { PaginationSmart } from "@/components/common/Pagination";
 import { groupSetsByDate } from "@/utils/dateUtils";
 import { useSetStore } from "@/store/set.store";
+import LibraryItem from "@/components/set/LibraryItem";
+import { InputSet } from "@/components/common/InputSet";
 
 type LibraryTab = "flashcard" | "folder";
 
@@ -19,8 +19,7 @@ export default function LibraryPage() {
   const user = useAuthStore((s) => s.user);
 
   const { loading } = useUserSets(user?.id, page);
-
-  const { sets, total, countsCache } = useSetStore();
+  const { sets, total, countsCache, removeSet } = useSetStore();
 
   const folders = [
     { id: 1, title: "TOEIC", totalSets: 5 },
@@ -41,64 +40,74 @@ export default function LibraryPage() {
           card_count: displayCount,
           username: user?.username ?? "You",
         }}
+        onDeleteSuccess={(id) => {
+          removeSet(id);
+          if (sets.length <= 1 && page > 1) {
+            setPage(page - 1);
+          }
+        }}
       />
     );
   };
 
   return (
-    <div className="w-full max-w-[70vw] px-[4vw] py-[3vh] space-y-[4vh]">
-      <header className="space-y-[3vh]">
-        <h1 className="text-xl font-semibold">Your Library</h1>
+    <div className="w-full max-w-6xl mx-auto px-4 md:px-8 space-y-4">
+      <header className="space-y-6">
+        <h1 className="text-2xl font-bold tracking-tight">Your Library</h1>
 
         <Tabs
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as LibraryTab)}
-          className="bg-none"
+          className="w-full"
         >
-          <TabsList className="flex gap-[1.5vw] bg-none border-b rounded-none w-full justify-start h-auto p-0">
+          <TabsList className="flex bg-transparent border-b rounded-none w-full justify-start h-auto p-0 gap-6">
             <TabsTrigger
               value="flashcard"
-              className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none bg-transparent px-4 py-2"
+              className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none bg-transparent px-2 py-3 text-sm font-semibold transition-all shadow-none"
             >
               Flashcard
             </TabsTrigger>
             <TabsTrigger
               value="folder"
-              className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none bg-transparent px-4 py-2"
+              className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none bg-transparent px-2 py-3 text-sm font-semibold transition-all shadow-none"
             >
               Folder
             </TabsTrigger>
           </TabsList>
 
-          <div className="mt-[3vh] flex items-center justify-between gap-[2vw]">
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-4">
             <button
               type="button"
-              className="inline-flex items-center rounded-md bg-secondary px-3 py-1 text-sm text-white hover:opacity-90"
+              className="inline-flex items-center rounded-full bg-slate-100 px-4 py-1.5 text-sm font-medium text-slate-900 hover:bg-slate-200 transition-colors"
             >
-              Recent <ArrowRightIcon className="ml-1 h-4 w-4" />
+              Recent <ArrowRightIcon className="ml-2 h-4 w-4" />
             </button>
 
-            <div className="relative w-[18vw] min-w-[220px]">
-              <Input
+            <div className="relative w-full sm:w-72 lg:w-80">
+              <InputSet
                 placeholder={
                   activeTab === "flashcard"
-                    ? "Search flashcards"
-                    : "Search folders"
+                    ? "Search flashcards..."
+                    : "Search folders..."
                 }
-                className="w-full pr-9 rounded-md"
+                className="w-full pl-4 pr-10 bg-white border-slate-200 focus-visible:ring-primary shadow-none"
               />
-              <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Search className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             </div>
           </div>
 
           <TabsContent
             value="flashcard"
-            className="mt-6 space-y-8 outline-none"
+            className="mt-8 space-y-10 outline-none border-none"
           >
             {loading && sets.length === 0 ? (
-              <p>Loading...</p>
+              <div className="py-20">
+                <p className="animate-pulse text-slate-500">
+                  Fetching your sets...
+                </p>
+              </div>
             ) : (
-              <div className="space-y-8">
+              <div className="space-y-10">
                 {groupedSets.today.length > 0 && (
                   <Section title="Today">
                     {groupedSets.today.map(renderSetItem)}
@@ -118,43 +127,49 @@ export default function LibraryPage() {
                 )}
 
                 {!loading && sets.length === 0 && (
-                  <p className="text-center text-muted-foreground py-10">
-                    No sets found.
-                  </p>
+                  <div className="text-center py-20 border-2 border-dashed rounded-2xl border-slate-100">
+                    <p className="text-slate-400 font-medium">
+                      No sets found in your library.
+                    </p>
+                  </div>
                 )}
               </div>
             )}
 
-            <PaginationSmart
-              page={page}
-              total={total}
-              pageSize={10}
-              onChange={setPage}
-            />
+            {total > 10 && (
+              <div className="mt-12 flex justify-center">
+                <PaginationSmart
+                  page={page}
+                  total={total}
+                  pageSize={10}
+                  onChange={setPage}
+                />
+              </div>
+            )}
           </TabsContent>
 
-          <TabsContent
-            value="folder"
-            className="mt-[4vh] space-y-[2vh] outline-none"
-          >
-            {folders.map((folder) => (
-              <NavLink key={folder.id} to={`/folder/${folder.id}`}>
-                <Card
-                  variant="flashcard"
-                  className="mb-2 p-4 hover:bg-muted transition"
-                >
-                  <div className="flex items-center gap-3">
-                    <Folder className="h-5 w-5 text-primary" />
-                    <div className="min-w-0">
-                      <p className="truncate font-medium">{folder.title}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {folder.totalSets} sets
-                      </p>
+          <TabsContent value="folder" className="mt-8 outline-none border-none">
+            <div className="grid grid-cols-1 gap-4">
+              {folders.map((folder) => (
+                <NavLink key={folder.id} to={`/folder/${folder.id}`}>
+                  <Card className="hover:bg-muted/50 transition cursor-pointer p-5">
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
+                        <Folder className="h-6 w-6 text-primary" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate font-bold text-slate-900">
+                          {folder.title}
+                        </p>
+                        <p className="text-sm text-slate-500 font-medium">
+                          {folder.totalSets} sets
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </Card>
-              </NavLink>
-            ))}
+                  </Card>
+                </NavLink>
+              ))}
+            </div>
           </TabsContent>
         </Tabs>
       </header>
@@ -170,46 +185,14 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="space-y-3">
-      <div className="flex items-center gap-3">
-        <h2 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+    <section className="space-y-4">
+      <div className="flex items-center gap-4">
+        <h2 className="text-xs font-bold text-slate-400 uppercase tracking-[0.1em]">
           {title}
         </h2>
-        <div className="flex-1 h-px bg-border/60" />
+        <div className="flex-1 h-px bg-slate-100" />
       </div>
-      <ul className="space-y-2">{children}</ul>
+      <div className="grid grid-cols-1 gap-4">{children}</div>
     </section>
-  );
-}
-
-function LibraryItem({
-  item,
-}: {
-  item: {
-    id: string;
-    title: string;
-    card_count: number;
-    username: string;
-  };
-}) {
-  const navigate = useNavigate();
-
-  return (
-    <li>
-      <Card
-        variant="flashcard"
-        className="hover:bg-muted/50 transition cursor-pointer p-4"
-        onClick={() => navigate(`/sets/${item.id}/view`)}
-      >
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex-1">
-            <ListItemContent
-              title={item.title}
-              meta={`${item.card_count} terms | ${item.username}`}
-            />
-          </div>
-        </div>
-      </Card>
-    </li>
   );
 }
