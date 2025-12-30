@@ -34,7 +34,7 @@ export function SetFormHeader({
   const isCreateMode = mode === "create";
 
   return (
-    <div className="mb-4">
+    <div className="flex flex-col justify-between gap-2">
       <div
         className="flex items-center gap-2 cursor-pointer mb-2"
         onClick={onBack}
@@ -56,16 +56,15 @@ export function SetFormHeader({
               action={onDelete}
               successTitle="Deleted"
               successDescription="Set has been deleted."
+              onClose={() => {}}
             >
-              <ActionTooltip label="Delete Set">
-                <Button
-                  type="button"
-                  variant="destructive"
-                  className="rounded-full text-white"
-                >
-                  Delete
-                </Button>
-              </ActionTooltip>
+              <Button
+                type="button"
+                variant="destructive"
+                className="rounded-full text-white"
+              >
+                Delete
+              </Button>
             </ConfirmModal>
           )}
         </div>
@@ -83,7 +82,8 @@ export function SetFormHeader({
                 isPublic
                   ? "Public (Everyone can see)"
                   : "Private (Only you can see)"
-              } side="bottom"
+              }
+              side="bottom"
             >
               <ToggleRight
                 className={cn(

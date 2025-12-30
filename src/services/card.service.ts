@@ -17,7 +17,7 @@ export const CardService = {
     return res.data as CardItem;
   },
 
-   async updateCard(cardId: string, payload: { term?: string; definition?: string; example?: string }) {
+   async updateCard(cardId: string, payload: { term?: string; definition?: string; example?: string;image_url?:string }) {
     const res = await apiClient.put(`/api/v1/cards/${cardId}`, payload);
     return res.data as CardItem;
   },

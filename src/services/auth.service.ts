@@ -18,18 +18,24 @@ export async function login(payload: LoginDto) {
 
 export async function refreshToken() {
   const res = await apiClient.post("/api/v1/auth/refresh");
-  return res.data.data.accessToken;
+  const newAccessToken = res.data.accessToken;
+  console.log("new:", newAccessToken);
+
+  localStorage.setItem("accessToken", newAccessToken);
+  return newAccessToken;
 }
 
-export function logout() {
-  // Xóa access token khỏi localStorage
-  localStorage.removeItem("accessToken");
-
-  // Nếu có refresh token, cũng xóa luôn
-  localStorage.removeItem("refreshToken");
-
-  // Chuyển hướng về trang login (tuỳ dự án)
-  window.location.href = "/login";
+export async function logout() {
+  try {
+    await apiClient.get("/api/v1/auth/logout");
+  } catch (error) {
+    console.error("Logout API failed:", error);
+  } finally {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.clear();
+    window.location.href = "/login";
+  }
 }
 
 export const verifyEmail = (token: string) => {
