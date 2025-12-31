@@ -10,7 +10,6 @@ export function useSetDetail(setId?: string) {
   const [loading, setLoading] = useState(false); 
   const [error, setError] = useState<string | null>(null);
 
-  const updateCountsCache = useSetStore((s) => s.updateCountsCache);
   const removeSetFromStore = useSetStore((s) => s.removeSet);
 
   const fetchData = useCallback(async () => {
@@ -32,14 +31,13 @@ export function useSetDetail(setId?: string) {
       setSet(setData);
       setCards(cardsData);
 
-      updateCountsCache(setId, cardsData.length);
     } catch (err) {
       console.error("Failed to fetch set detail", err);
       setError("Failed to load set details. Please try again.");
     } finally {
       setLoading(false);
     }
-  }, [setId, updateCountsCache]);
+  }, [setId]);
 
   useEffect(() => {
     if (setId) {
@@ -65,7 +63,6 @@ export function useSetDetail(setId?: string) {
       await CardService.deleteCard(cardId); //
       const newCards = cards.filter((c) => c.id !== cardId);
       setCards(newCards);
-      updateCountsCache(setId, newCards.length); 
       return true;
     } catch (err) {
       console.error("Delete card error:", err);
