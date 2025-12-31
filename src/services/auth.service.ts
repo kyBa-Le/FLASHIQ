@@ -27,7 +27,8 @@ export async function refreshToken() {
 
 export async function logout() {
   try {
-    await apiClient.get("/api/v1/auth/logout");
+    const refreshToken = localStorage.getItem("refreshToken")
+    await apiClient.post("/api/v1/auth/logout", { refreshToken: refreshToken });
   } catch (error) {
     console.error("Logout API failed:", error);
   } finally {
