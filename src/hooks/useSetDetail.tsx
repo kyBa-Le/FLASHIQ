@@ -1,4 +1,3 @@
-import { CardService } from "@/services/card.service";
 import { SetService } from "@/services/set.service";
 import { useSetStore } from "@/store/set.store";
 import type { CardItem, SetItem } from "@/types/types";
@@ -60,7 +59,6 @@ export function useSetDetail(setId?: string) {
   const deleteCard = async (cardId: string) => {
     if (!setId) return false;
     try {
-      await CardService.deleteCard(cardId); //
       const newCards = cards.filter((c) => c.id !== cardId);
       setCards(newCards);
       return true;

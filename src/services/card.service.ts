@@ -1,5 +1,5 @@
 import apiClient from "./apiClient";
-import type { CardDto, CardItem } from "@/types/types";
+import type { CardDto, CardItem, CardWithIdDto } from "@/types/types";
 
 export const CardService = {
   async addCard(setId: string, payload: CardDto) {
@@ -29,4 +29,8 @@ export const CardService = {
     const res = await apiClient.delete(`/api/v1/cards/${cardId}`);
     return res.data as { success: boolean; message?: string };
   },
+
+  async bulkUpdateCards(payload: {setId: string, oldCards: CardWithIdDto[], newCards: CardDto[]}) {
+    await apiClient.put(`/api/v1/cards/bulk`, payload)
+  }
 };

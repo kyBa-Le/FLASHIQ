@@ -54,3 +54,7 @@ export interface SetDetail {
   isPublic: boolean;
   cards: CardItem[];
 }
+
+export type CardWithIdDto = CardDto & {
+  id: string
+}
