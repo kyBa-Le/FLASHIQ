@@ -42,7 +42,7 @@ export default function LoginPage() {
             form.setError("email", { type: "server", message: msg });
           } else if (
             lowerMsg.includes("password") ||
-            lowerMsg.includes("mật khẩu")
+            lowerMsg.includes("password")
           ) {
             form.setError("password", { type: "server", message: msg });
           } else {
@@ -51,7 +51,7 @@ export default function LoginPage() {
         });
       } else {
         setServerError(
-          errorResponse?.message || "Đã xảy ra lỗi không xác định"
+          errorResponse?.message || "An unexpected error occurred. Please try again."
         );
       }
     }

@@ -71,7 +71,6 @@ export default function CreateSetPage() {
       addSet({
         id: setId,
         title: data.title,
-        cardCount: processedCards.length,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
       });

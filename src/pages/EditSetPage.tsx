@@ -4,14 +4,12 @@ import { useSetDetail } from "@/hooks/useSetDetail";
 import { SetService } from "@/services/set.service";
 import { CardService } from "@/services/card.service";
 import { UploadService } from "@/services/upload.service";
-import { useSetStore } from "@/store/set.store";
 import type { SetFormValues } from "@/schema/flashCard.schema";
 import { toast } from "sonner";
 
 export default function EditSetPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const updateCountsCache = useSetStore((s) => s.updateCountsCache);
   const { set, cards, loading } = useSetDetail(id);
 
   const draftKey = `set-draft-${id}`;
@@ -94,7 +92,6 @@ export default function EditSetPage() {
         })));
       }
 
-      updateCountsCache(id, validCards.length);
       localStorage.removeItem(draftKey);
       toast.success("Set updated successfully!");
       navigate(`/sets/${id}/view`);

@@ -19,7 +19,7 @@ export default function LibraryPage() {
   const user = useAuthStore((s) => s.user);
 
   const { loading } = useUserSets(user?.id, page);
-  const { sets, total, countsCache, removeSet } = useSetStore();
+  const { sets, total, removeSet } = useSetStore();
 
   const folders = [
     { id: 1, title: "TOEIC", totalSets: 5 },
@@ -31,7 +31,7 @@ export default function LibraryPage() {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderSetItem = (set: any) => {
-    const displayCount = countsCache[set.id] ?? set.cardCount ?? 0;
+    const displayCount = set.cardCount ?? 0;
     return (
       <LibraryItem
         key={set.id}

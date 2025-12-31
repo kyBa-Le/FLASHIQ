@@ -1,6 +1,7 @@
 import axios from "axios";
 import type { AxiosRequestConfig } from "axios";
 import { refreshToken, logout } from "./auth.service";
+import { toast } from "sonner";
 
 export const API_BASE = import.meta.env.VITE_API_BASE || "";
 
@@ -42,6 +43,18 @@ apiClient.interceptors.response.use(
       } catch (refreshError) {
         await logout();
         return Promise.reject(refreshError);
+      }
+    }
+
+    let isRateLimitToastShown = false;
+    if (error.response?.status === 429) {
+      if (!isRateLimitToastShown) {
+        isRateLimitToastShown = true;
+        toast.error("Too many requests. Please try again later");
+
+        setTimeout(() => {
+          isRateLimitToastShown = false;
+        }, 5000);
       }
     }
 
