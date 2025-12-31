@@ -1,5 +1,5 @@
 import axios from "axios";
-import apiClient from "./apiClient";
+import apiClient, { API_BASE } from "./apiClient";
 import type { SignupDto } from "@/types/auth.type";
 import type { LoginDto } from "@/types/auth.type";
 
@@ -17,9 +17,9 @@ export async function login(payload: LoginDto) {
 }
 
 export async function refreshToken() {
-  const res = await apiClient.post("/api/v1/auth/refresh");
-  const newAccessToken = res.data.accessToken;
-  console.log("new:", newAccessToken);
+  const res = await refreshClient.post("/api/v1/auth/refresh", { refreshToken: localStorage.getItem("refreshToken") });
+  const newAccessToken = res.data.data.accessToken;
+  console.log(newAccessToken)
 
   localStorage.setItem("accessToken", newAccessToken);
   return newAccessToken;
@@ -48,3 +48,8 @@ export const verifyEmail = (token: string) => {
 export const resendVerification = (email: string) => {
   return apiClient.post("/api/v1/auth/resend-verification", { email });
 };
+
+const refreshClient = axios.create({
+  baseURL: API_BASE,
+  withCredentials: true,
+})
