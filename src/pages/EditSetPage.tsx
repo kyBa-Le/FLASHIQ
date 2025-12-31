@@ -57,45 +57,53 @@ export default function EditSetPage() {
         isPublic: data.isPublic ?? false,
       });
 
-      const validCards = data.cards.filter((c) => c.term?.trim() || c.definition?.trim());
+      const validCards = data.cards.filter(
+        (c) => c.term?.trim() && c.definition?.trim()
+      );
 
-      const processedCards = [];
-      for (const card of validCards) {
-        let finalUrl = card.image_url;
-        
-        if (card.image_url instanceof File || card.image_url instanceof Blob) {
-          finalUrl = await UploadService.uploadImage(card.image_url);
-        }
-        
-        processedCards.push({
-          ...card,
-          image_url: finalUrl as string,
-        });
-      }
+      const processedCards = await Promise.all(
+        validCards.map(async (card) => {
+          let imageUrl = card.image_url;
 
-      const cardsToUpdate = processedCards.filter((c) => c.id);
-      const cardsToAdd = processedCards.filter((c) => !c.id);
+          if (imageUrl instanceof File || imageUrl instanceof Blob) {
+            imageUrl = await UploadService.uploadImage(imageUrl);
+          }
 
-      for (const card of cardsToUpdate) {
-        await CardService.updateCard(card.id!, {
-          term: card.term,
-          definition: card.definition,
-          example: card.example,
-          image_url: card.image_url,
-        });
-      }
+          return {
+            ...card,
+            image_url: imageUrl as string,
+          };
+        })
+      );
 
-      if (cardsToAdd.length > 0) {
-        await SetService.bulkAddCards(id, cardsToAdd.map(c => ({
-          term: c.term || "",
-          definition: c.definition || "",
-          example: c.example || "",
-          image_url: c.image_url || ""
-        })));
-      }
+      const oldCards = processedCards
+        .filter((c) => c.id)
+        .map((c) => ({
+          id: c.id!,
+          term: c.term!,
+          definition: c.definition!,
+          example: c.example ?? "",
+          image_url: c.image_url ?? "",
+        }));
 
-      updateCountsCache(id, validCards.length);
+      const newCards = processedCards
+        .filter((c) => !c.id)
+        .map((c) => ({
+          term: c.term!,
+          definition: c.definition!,
+          example: c.example ?? "",
+          image_url: c.image_url ?? "",
+        }));
+
+      await CardService.bulkUpdateCards({
+        setId: id,
+        oldCards,
+        newCards,
+      });
+
       localStorage.removeItem(draftKey);
+      updateCountsCache(id, validCards.length);
+
       toast.success("Set updated successfully!");
       navigate(`/sets/${id}/view`);
     } catch (error) {
