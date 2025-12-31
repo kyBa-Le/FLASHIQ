@@ -12,6 +12,8 @@ import UpcomingPage from "@/pages/UpcomingPage";
 import ViewDetailSetPage from "@/pages/ViewDetailSet";
 import CreateSetPage from "@/pages/CreateSetPage";
 import EditSetPage from "@/pages/EditSetPage";
+import SetStudyPage from "@/pages/SetStudyPage";
+import FlashCardPage from "@/pages/FlashCardPage";
 import MultipleChoicePage from "@/pages/MutipleChoicePage";
 
 function App() {
@@ -30,6 +32,7 @@ function App() {
           element={<VerifyEmailSuccessPage />}
         />
         <Route path="/verification-failed" element={<VerifyEmailFailPage />} />
+        <Route path="/sets/:id/study/flashcard" element={<FlashCardPage />} />
 
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>
@@ -38,6 +41,7 @@ function App() {
             <Route path="/sets/create" element={<CreateSetPage />} />
             <Route path="/sets/:id/edit" element={<EditSetPage />} />
             <Route path="/sets/:id/view" element={<ViewDetailSetPage />} />
+            <Route path="/sets/:id/study" element={<SetStudyPage />} />
           </Route>
           <Route
             path="/sets/:id/study/multiple-choice"
