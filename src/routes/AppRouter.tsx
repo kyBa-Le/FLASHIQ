@@ -12,6 +12,7 @@ import UpcomingPage from "@/pages/UpcomingPage";
 import ViewDetailSetPage from "@/pages/ViewDetailSet";
 import CreateSetPage from "@/pages/CreateSetPage";
 import EditSetPage from "@/pages/EditSetPage";
+import MultipleChoicePage from "@/pages/MutipleChoicePage";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           element={<VerifyEmailSuccessPage />}
         />
         <Route path="/verification-failed" element={<VerifyEmailFailPage />} />
+        <Route path="/sets/:id/study" element={<MultipleChoicePage />} />
 
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>
