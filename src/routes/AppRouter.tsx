@@ -12,6 +12,7 @@ import UpcomingPage from "@/pages/UpcomingPage";
 import ViewDetailSetPage from "@/pages/ViewDetailSet";
 import CreateSetPage from "@/pages/CreateSetPage";
 import EditSetPage from "@/pages/EditSetPage";
+import MultipleChoicePage from "@/pages/MutipleChoicePage";
 
 function App() {
   return (
@@ -38,6 +39,10 @@ function App() {
             <Route path="/sets/:id/edit" element={<EditSetPage />} />
             <Route path="/sets/:id/view" element={<ViewDetailSetPage />} />
           </Route>
+          <Route
+            path="/sets/:id/study/multiple-choice"
+            element={<MultipleChoicePage />}
+          />  
         </Route>
 
         <Route path="*" element={<UpcomingPage />} />
