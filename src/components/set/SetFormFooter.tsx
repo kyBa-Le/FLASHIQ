@@ -19,9 +19,10 @@ export function SetFormFooter({
   submitLabel,
   isSubmitting,
 }: Props) {
+  
   return (
     <>
-      <div className="flex justify-center mb-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <Button
           type="button"
           variant="outline"
@@ -32,7 +33,7 @@ export function SetFormFooter({
         </Button>
       </div>
 
-      <div className="flex justify-end gap-3">
+      <div className="flex items-center justify-end gap-3">
         <Button
           type="button"
           variant="outline"

@@ -11,13 +11,14 @@ import { Button } from "@/components/ui/Button";
 import SuccessModal from "./SuccessModal";
 
 type ConfirmModalProps = {
-  title: string; 
+  title: string;
   description?: string;
   action: () => void | Promise<void>;
   successTitle?: string;
   successDescription?: string;
-  errorMessage?: string; 
+  errorMessage?: string;
   children: React.ReactNode;
+  onClose: () => void | Promise<void>;
 };
 
 export default function ConfirmModal({
@@ -36,7 +37,7 @@ export default function ConfirmModal({
   const handleConfirm = async () => {
     setLoading(true);
     try {
-      await Promise.resolve(action()); 
+      await Promise.resolve(action());
       setConfirmOpen(false);
       setSuccessOpen(true);
     } catch (err) {

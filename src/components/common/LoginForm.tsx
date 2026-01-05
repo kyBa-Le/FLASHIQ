@@ -64,8 +64,12 @@ export default function LoginForm({
                 <FormControl>
                   <Input
                     placeholder="Enter your email address"
-                    className="rounded-full"
                     {...field}
+                    className={
+                      form.formState.errors.email
+                        ? "border-red-500 focus-visible:ring-red-500"
+                        : "rounded-full"
+                    }
                   />
                 </FormControl>
                 <FormMessage className="text-red-500 text-xs" />
@@ -82,7 +86,6 @@ export default function LoginForm({
                   <Input
                     type="password"
                     placeholder="Enter your password"
-                    className="rounded-full"
                     {...field}
                   />
                 </FormControl>

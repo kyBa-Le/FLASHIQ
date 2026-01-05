@@ -3,20 +3,30 @@ import { SetFormContainer } from "@/components/set/SetFormContainer";
 import { useSetDetail } from "@/hooks/useSetDetail";
 import { SetService } from "@/services/set.service";
 import { CardService } from "@/services/card.service";
-import { useSetStore } from "@/store/set.store";
+import { UploadService } from "@/services/upload.service";
 import type { SetFormValues } from "@/schema/flashCard.schema";
+import { toast } from "sonner";
 
 export default function EditSetPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const updateCountsCache = useSetStore((s) => s.updateCountsCache);
   const { set, cards, loading } = useSetDetail(id);
 
   const draftKey = `set-draft-${id}`;
 
   if (loading && !set)
-    return <div className="p-6 text-muted-foreground">Loading...</div>;
-  if (!set) return <div className="p-6 text-destructive">Set not found</div>;
+    return (
+      <div className="flex items-center justify-center p-20 text-muted-foreground italic">
+        Loading set data...
+      </div>
+    );
+
+  if (!set)
+    return (
+      <div className="p-6 text-center text-destructive font-semibold">
+        Set not found
+      </div>
+    );
 
   const draft = localStorage.getItem(draftKey);
   const defaultValues: SetFormValues = draft
@@ -31,10 +41,10 @@ export default function EditSetPage() {
           term: c.term,
           definition: c.definition,
           example: c.example ?? "",
+          image_url: c.image_url ?? "",
         })),
       };
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleUpdate = async (data: SetFormValues) => {
     if (!id) return;
 
@@ -45,37 +55,68 @@ export default function EditSetPage() {
         isPublic: data.isPublic ?? false,
       });
 
-      const validCards = data.cards.filter((c) => c.term && c.definition);
+      const validCards = data.cards.filter(
+        (c) => c.term?.trim() && c.definition?.trim()
+      );
 
-      const cardPromises = validCards.map((card) => {
-        if (card.id) {
-          return CardService.updateCard(card.id, {
-            term: card.term ?? "",
-            definition: card.definition ?? "",
-            example: card.example ?? "",
-          });
-        }
-        return SetService.bulkAddCards(id, [card]);
+      const processedCards = await Promise.all(
+        validCards.map(async (card) => {
+          let imageUrl = card.image_url;
+
+          if (imageUrl instanceof File || imageUrl instanceof Blob) {
+            imageUrl = await UploadService.uploadImage(imageUrl);
+          }
+
+          return {
+            ...card,
+            image_url: imageUrl as string,
+          };
+        })
+      );
+
+      const oldCards = processedCards
+        .filter((c) => c.id)
+        .map((c) => ({
+          id: c.id!,
+          term: c.term!,
+          definition: c.definition!,
+          example: c.example ?? "",
+          image_url: c.image_url ?? "",
+        }));
+
+      const newCards = processedCards
+        .filter((c) => !c.id)
+        .map((c) => ({
+          term: c.term!,
+          definition: c.definition!,
+          example: c.example ?? "",
+          image_url: c.image_url ?? "",
+        }));
+
+      await CardService.bulkUpdateCards({
+        setId: id,
+        oldCards,
+        newCards,
       });
 
-      await Promise.all(cardPromises);
-
-      updateCountsCache(id, validCards.length);
-
       localStorage.removeItem(draftKey);
-      navigate("/library");
+      toast.success("Set updated successfully!");
+      navigate(`/sets/${id}/view`);
     } catch (error) {
       console.error("Update failed:", error);
+      toast.error("Failed to update set. Please try again.");
     }
   };
 
   return (
-    <SetFormContainer
-      mode="edit"
-      defaultValues={defaultValues}
-      submitLabel="Save Changes"
-      onSubmit={handleUpdate}
-      draftKey={draftKey}
-    />
+    <div className="bg-gray-50/50 min-h-screen">
+      <SetFormContainer
+        mode="edit"
+        defaultValues={defaultValues}
+        submitLabel="Save Changes"
+        onSubmit={handleUpdate}
+        draftKey={draftKey}
+      />
+    </div>
   );
 }

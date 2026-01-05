@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { getCurrentUser } from "@/services/user.service";
+import { logout as apiLogout } from "@/services/auth.service";
 
 export type User = {
   id: string;
@@ -11,7 +12,7 @@ export type User = {
 type AuthState = {
   user: User | null;
   loading: boolean;
-  hasFetched: boolean; 
+  hasFetched: boolean;
   fetchUser: () => Promise<void>;
   logout: () => void;
 };
@@ -23,7 +24,14 @@ export const useAuthStore = create<AuthState>((set, get) => ({
 
   fetchUser: async () => {
     const { hasFetched } = get();
-    if (hasFetched) return; 
+    const token = localStorage.getItem("accessToken");
+
+    if (hasFetched || !token) {
+      if (!token && !hasFetched) {
+        set({ user: null, hasFetched: true, loading: false });
+      }
+      return;
+    }
 
     set({ loading: true });
     try {
@@ -32,11 +40,12 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       console.log("user:", user);
     } catch (err) {
       console.error("Failed to fetch user:", err);
-      set({ loading: false });
+      set({ user: null, loading: false, hasFetched: true });
     }
   },
 
   logout: () => {
-    set({ user: null, hasFetched: false }); 
+    apiLogout();
+    set({ user: null, hasFetched: false, loading: false });
   },
 }));

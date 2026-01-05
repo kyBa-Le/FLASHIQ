@@ -3,14 +3,14 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 
-const cardVariants = cva("rounded-xl text-card-foreground shadow", {
+const cardVariants = cva("rounded-xl text-card-foreground", {
   variants: {
     variant: {
       default: "border bg-card",
       outline: "bg-transparent border",
       ghost: "bg-transparent shadow-none",
       secondary: "bg-secondary text-white",
-      flashcard: "border bg-white shadow-sm hover:bg-muted/40 transition",
+      flashcard: "border bg-white hover:bg-muted/40 transition",
     },
     size: {
       sm: "p-2",

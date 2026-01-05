@@ -126,3 +126,14 @@
     @apply bg-background text-foreground font-sans;
   }
 }
+
+.transform-style-preserve-3d {
+  transform-style: preserve-3d;
+}
+.backface-hidden {
+  -webkit-backface-visibility: hidden;
+          backface-visibility: hidden;
+}
+.rotate-y-180 {
+  transform: rotateX(180deg);
+}

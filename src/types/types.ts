@@ -3,6 +3,13 @@ export interface CreateSetDto {
   description?: string;
   isPublic?: boolean;
 }
+
+export interface CardDto {
+  term: string;
+  definition: string;
+  example?: string;
+  image_url?: string;
+}
 export interface SetItem {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [x: string]: any;
@@ -46,4 +53,8 @@ export interface SetDetail {
   description?: string;
   isPublic: boolean;
   cards: CardItem[];
+}
+
+export type CardWithIdDto = CardDto & {
+  id: string
 }

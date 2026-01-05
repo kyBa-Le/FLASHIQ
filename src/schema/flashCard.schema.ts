@@ -2,20 +2,23 @@ import { z } from "zod";
 
 export const cardSchema = z.object({
   id: z.string().optional(),
-  term: z.string().default(""),
-  definition: z.string().default(""),
-  example: z.string().optional().default(""),
-  image_url: z.string().optional().default(""),
+  term: z.string().max(50, "Term is too long").default(""),
+  definition: z.string().max(200, "Definition is too long").default(""),
+  example: z.string().max(200, "Example is too long").default(""),
+  image_url: z.any().default(""),
 });
 
 export const setSchema = z.object({
   id: z.string().optional(),
-  title: z.string().min(1, "Title is required"),
+  title: z
+    .string()
+    .min(1, "Title is required")
+    .max(100, "Title must be under 100 characters"),
   description: z
     .string()
-    .nullish()
-    .transform((val) => val ?? "")
-    .default(""),
+    .max(500, "Description is too long")
+    .default("")
+    .catch(""),
   isPublic: z.boolean().default(false),
   cards: z.array(cardSchema).default([]),
 });

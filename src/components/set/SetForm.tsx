@@ -1,4 +1,3 @@
-// src/components/set/SetForm.tsx
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -30,7 +29,7 @@ export function SetForm({ index, disabled = false, onRemove }: Props) {
         cardErrors ? "border-red-400" : ""
       }`}
     >
-      <div className="grid grid-cols-[1fr_1fr_120px] gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-[1fr_1fr] lg:grid-cols-[1fr_1fr_120px] gap-4">
         <div className="col-span-2 space-y-3">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
@@ -86,6 +85,7 @@ export function SetForm({ index, disabled = false, onRemove }: Props) {
                 action={onRemove}
                 successTitle="Deleted"
                 successDescription="Card removed."
+                onClose={() => {}}
               >
                 <ActionTooltip label="Delete card" side="bottom">
                   <Trash2 className="cursor-pointer text-muted-foreground hover:text-destructive" />

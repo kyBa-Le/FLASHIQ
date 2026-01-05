@@ -1,5 +1,5 @@
 import axios from "axios";
-import apiClient from "./apiClient";
+import apiClient, { API_BASE } from "./apiClient";
 import type { SignupDto } from "@/types/auth.type";
 import type { LoginDto } from "@/types/auth.type";
 
@@ -17,19 +17,26 @@ export async function login(payload: LoginDto) {
 }
 
 export async function refreshToken() {
-  const res = await apiClient.post("/api/v1/auth/refresh");
-  return res.data.data.accessToken;
+  const res = await refreshClient.post("/api/v1/auth/refresh", { refreshToken: localStorage.getItem("refreshToken") });
+  const newAccessToken = res.data.data.accessToken;
+  console.log(newAccessToken)
+
+  localStorage.setItem("accessToken", newAccessToken);
+  return newAccessToken;
 }
 
-export function logout() {
-  // Xóa access token khỏi localStorage
-  localStorage.removeItem("accessToken");
-
-  // Nếu có refresh token, cũng xóa luôn
-  localStorage.removeItem("refreshToken");
-
-  // Chuyển hướng về trang login (tuỳ dự án)
-  window.location.href = "/login";
+export async function logout() {
+  try {
+    const refreshToken = localStorage.getItem("refreshToken")
+    await apiClient.post("/api/v1/auth/logout", { refreshToken: refreshToken });
+  } catch (error) {
+    console.error("Logout API failed:", error);
+  } finally {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.clear();
+    window.location.href = "/login";
+  }
 }
 
 export const verifyEmail = (token: string) => {
@@ -41,3 +48,8 @@ export const verifyEmail = (token: string) => {
 export const resendVerification = (email: string) => {
   return apiClient.post("/api/v1/auth/resend-verification", { email });
 };
+
+const refreshClient = axios.create({
+  baseURL: API_BASE,
+  withCredentials: true,
+})

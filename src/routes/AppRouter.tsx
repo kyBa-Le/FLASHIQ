@@ -2,21 +2,20 @@ import { Routes, Route } from "react-router-dom";
 import { Suspense } from "react";
 import ProtectedRoute from "../routes/ProtectedRoute";
 import MainLayout from "../layouts/MainLayout";
-import {
-  HomeUserPage,
-  LoginPage,
-  LibraryPage,
-  CreateSetPage,
-  EditSetPage,
-} from "./lazyPages";
+import { HomeUserPage, LoginPage, LibraryPage } from "./lazyPages";
 import SignupPage from "@/pages/SignupPage";
 import VerifyEmailNoticePage from "@/pages/VerifyEmailNoticePage";
 import VerifyEmailFailPage from "@/pages/VerifyEmailFailPage";
 import VerifyEmailSuccessPage from "@/pages/VerifyEmailSuccessPage";
 import VerifyEmailHandlerPage from "@/pages/VerifyEmailHandlerPage";
-import EditorLayout from "@/layouts/EditorLayout";
 import UpcomingPage from "@/pages/UpcomingPage";
 import ViewDetailSetPage from "@/pages/ViewDetailSet";
+import CreateSetPage from "@/pages/CreateSetPage";
+import EditSetPage from "@/pages/EditSetPage";
+import SetStudyPage from "@/pages/SetStudyPage";
+import FlashCardPage from "@/pages/FlashCardPage";
+import MultipleChoicePage from "@/pages/MutipleChoicePage";
+import { SearchSetPage } from "@/pages/SearchSetPage";
 
 function App() {
   return (
@@ -25,20 +24,31 @@ function App() {
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/verify-email" element={<VerifyEmailNoticePage />} />
-        <Route path="/verify-email/handle" element={<VerifyEmailHandlerPage />} />
-        <Route path="/verification-success" element={<VerifyEmailSuccessPage />} />
+        <Route
+          path="/verify-email/handle"
+          element={<VerifyEmailHandlerPage />}
+        />
+        <Route
+          path="/verification-success"
+          element={<VerifyEmailSuccessPage />}
+        />
         <Route path="/verification-failed" element={<VerifyEmailFailPage />} />
+        <Route path="/sets/:id/study/flashcard" element={<FlashCardPage />} />
 
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>
             <Route path="/" element={<HomeUserPage />} />
+            <Route path="/search" element={<SearchSetPage/>} />
             <Route path="/library" element={<LibraryPage />} />
-          </Route>
-          <Route element={<EditorLayout />}>
             <Route path="/sets/create" element={<CreateSetPage />} />
             <Route path="/sets/:id/edit" element={<EditSetPage />} />
             <Route path="/sets/:id/view" element={<ViewDetailSetPage />} />
+            <Route path="/sets/:id/study" element={<SetStudyPage />} />
           </Route>
+          <Route
+            path="/sets/:id/study/multiple-choice"
+            element={<MultipleChoicePage />}
+          />  
         </Route>
 
         <Route path="*" element={<UpcomingPage />} />

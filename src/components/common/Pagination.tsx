@@ -30,19 +30,17 @@ export function PaginationSmart({
   const renderPageNumbers = () => {
     const pages: (number | string)[] = [];
     if (totalPages <= 7) {
-      // Hiển thị tất cả trang nếu <= 7
       for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
-      // Luôn hiển thị trang 1 và cuối
       pages.push(1);
 
-      if (page > 4) pages.push("…"); // ellipsis trước active
+      if (page > 4) pages.push("…"); 
       const start = Math.max(2, page - 1);
       const end = Math.min(totalPages - 1, page + 1);
 
       for (let i = start; i <= end; i++) pages.push(i);
 
-      if (page < totalPages - 3) pages.push("…"); // ellipsis sau active
+      if (page < totalPages - 3) pages.push("…");
       pages.push(totalPages);
     }
     return pages;
