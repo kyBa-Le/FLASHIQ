@@ -34,3 +34,8 @@ export const CardService = {
     await apiClient.put(`/api/v1/cards/bulk`, payload)
   }
 };
+
+export const getCardsBySet = async (setId: string) => {
+  const res = await apiClient.get(`/api/v1/sets/${setId}/cards`);
+  return res.data.data;
+};

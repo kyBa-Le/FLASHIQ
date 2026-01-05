@@ -42,7 +42,7 @@ export const SetService = {
     const res = await apiClient.get(`/api/v1/sets/${id}`, {
       params: { includeCards },
     });
-    return res.data;
+    return res.data.data;
   },
   async getSetCards(setId: string) {
     const res = await apiClient.get<{
