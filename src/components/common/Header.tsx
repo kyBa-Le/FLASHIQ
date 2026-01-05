@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react"; 
 import { Menu, Search } from "lucide-react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom"; 
 import { ActionTooltip } from "./ActionTooltip";
 import UserDropdown from "./UserDropdown";
 import { useSidebarStore } from "@/store/sidebar.store";
@@ -11,6 +11,15 @@ const ADD_ICON_SRC = "/assets/add.png";
 
 const Header: React.FC = () => {
   const toggle = useSidebarStore((state) => state.toggle);
+  const navigate = useNavigate();
+  const [searchValue, setSearchValue] = useState("");
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchValue.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchValue.trim())}`);
+    }
+  };
 
   return (
     <header className="w-full border-b bg-white">
@@ -37,14 +46,17 @@ const Header: React.FC = () => {
           </div>
 
           <div className="flex-1 max-w-2xl min-w-0 hidden sm:block">
-            <div className="relative w-full max-w-md mx-auto">
+            <form onSubmit={handleSearch} className="relative w-full max-w-md mx-auto">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <InputSet
                 type="search"
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
                 className="w-full pl-10 focus-visible:ring-1 focus-visible:ring-primary shadow-none"
                 placeholder="Search..."
               />
-            </div>
+              <button type="submit" className="hidden" />
+            </form>
           </div>
 
           <div className="flex items-center gap-3 shrink-0">

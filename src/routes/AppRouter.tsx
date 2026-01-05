@@ -15,6 +15,7 @@ import EditSetPage from "@/pages/EditSetPage";
 import SetStudyPage from "@/pages/SetStudyPage";
 import FlashCardPage from "@/pages/FlashCardPage";
 import MultipleChoicePage from "@/pages/MutipleChoicePage";
+import { SearchSetPage } from "@/pages/SearchSetPage";
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>
             <Route path="/" element={<HomeUserPage />} />
+            <Route path="/search" element={<SearchSetPage/>} />
             <Route path="/library" element={<LibraryPage />} />
             <Route path="/sets/create" element={<CreateSetPage />} />
             <Route path="/sets/:id/edit" element={<EditSetPage />} />
