@@ -8,7 +8,7 @@ export function ToggleGroupSpacing() {
       <ToggleGroup
         type="multiple"
         variant="outline"
-        className="flex gap-2 bg-white"
+        className="flex gap-2"
       >
         <ToggleGroupItem
           value="saved"
@@ -27,7 +27,7 @@ export function ToggleGroupSpacing() {
         <ToggleGroupItem
           value="group"
           aria-label="Toggle group"
-          className="gap-1 px-3"
+          className="gap-1 px-3 bg-white"
         >
           <Users className="h-4 w-4" />
           Group

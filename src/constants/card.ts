@@ -1,10 +1,3 @@
-export interface CardResponse {
-  id: string;
-  front: string;
-  back: string;
-  example?: string;
-}
-
 export type FlashcardControlsProps = {
   currentIndex: number;
   total: number;
@@ -19,9 +12,3 @@ export type FlashcardControlsProps = {
   onTogglePlay?: () => void;
 };
 
-export interface DeckCardProps {
-  title: string;
-  progress: string;
-  username: string;
-  avatarUrl?: string;
-}

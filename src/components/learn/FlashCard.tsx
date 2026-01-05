@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useState } from "react";
 import type { Card } from "@/types/card.type";
 import { cn } from "@/lib/utils";
@@ -7,6 +8,7 @@ interface FlashCardProps {
   className?: string;
   autoFlip?: boolean;
   onFlippedToBack?: () => void;
+  overlayText?: string | null;
 }
 
 export default function FlashCard({
@@ -14,12 +16,12 @@ export default function FlashCard({
   className,
   autoFlip = false,
   onFlippedToBack,
+  overlayText,
 }: FlashCardProps) {
   const [flipped, setFlipped] = useState(false);
 
   useEffect(() => {
     setFlipped(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [card.id]);
 
   useEffect(() => {
@@ -36,7 +38,7 @@ export default function FlashCard({
   return (
     <div
       className={cn(
-        "relative w-full perspective cursor-pointer",
+        "relative w-full h-full perspective cursor-pointer",
         className
       )}
       onClick={() => setFlipped((p) => !p)}
@@ -48,17 +50,13 @@ export default function FlashCard({
         )}
       >
         <div className="absolute inset-0 rounded-2xl border bg-white shadow-sm flex items-center justify-center backface-hidden">
-          <span className="text-3xl font-medium text-center">
-            {card.term}
-          </span>
+          <span className="text-3xl font-medium text-center">{card.term}</span>
         </div>
 
         <div className="absolute inset-0 rounded-2xl border bg-white shadow-sm backface-hidden rotate-x-180 px-8">
           <div className="grid grid-cols-2 gap-6 h-full items-center">
             <div className="flex flex-col items-center justify-center text-center">
-              <span className="text-3xl font-medium">
-                {card.definition}
-              </span>
+              <span className="text-3xl font-medium">{card.definition}</span>
 
               {card.example && (
                 <span className="mt-4 text-sm italic text-gray-500">
@@ -81,6 +79,23 @@ export default function FlashCard({
           </div>
         </div>
       </div>
+
+      {overlayText && (
+        <div
+          className="absolute inset-0 z-20 flex items-center justify-center 
+               bg-white rounded-2xl pointer-events-none"
+        >
+          <span
+            className={cn(
+              "text-xl font-bold",
+              overlayText.includes("Learned") && "text-green-500",
+              overlayText.includes("Learning") && "text-orange-500"
+            )}
+          >
+            {overlayText}
+          </span>
+        </div>
+      )}
     </div>
   );
 }

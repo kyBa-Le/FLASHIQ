@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+/* eslint-disable react-hooks/set-state-in-effect */
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 import type { Card } from "@/types/card.type";
@@ -26,6 +27,9 @@ export default function SetStudyPage() {
   const [trackProgress, setTrackProgress] = useState(true);
   const [isShuffled, setIsShuffled] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [overlayText, setOverlayText] = useState<string | null>(null);
+  const overlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const autoPlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const mode: StudyMode = useMemo(() => {
     if (!location.pathname || !id) return StudyMode.FLASHCARD;
@@ -61,32 +65,53 @@ export default function SetStudyPage() {
   const handleFlippedToBack = () => {
     if (!isPlaying) return;
 
-    setTimeout(() => {
-      setCurrentIndex((prev) => {
-        if (prev >= cards.length - 1) {
-          setIsPlaying(false);
-          return prev;
-        }
-        return prev + 1;
-      });
+    if (autoPlayTimerRef.current) {
+      clearTimeout(autoPlayTimerRef.current);
+    }
+
+    autoPlayTimerRef.current = setTimeout(() => {
+      nextCard();
     }, 3000);
   };
 
-  const shuffleCards = () => {
-    const shuffled = [...cards].sort(() => Math.random() - 0.5);
-    setCards(shuffled);
-    setCurrentIndex(0);
+  const nextCard = () => {
+    setCurrentIndex((i) =>
+      i < cards.length - 1 ? i + 1 : i
+    );
   };
 
   const toggleShuffle = () => {
     if (isShuffled) {
       setCards(originalCards);
     } else {
-      shuffleCards();
+      setCards([...cards].sort(() => Math.random() - 0.5));
     }
 
     setIsShuffled((p) => !p);
     setCurrentIndex(0);
+    setIsPlaying(false);
+  };
+
+  const showOverlayAndNext = (text: string) => {
+    setOverlayText(text);
+    setIsPlaying(false);
+
+    if (overlayTimerRef.current) {
+      clearTimeout(overlayTimerRef.current);
+    }
+
+    overlayTimerRef.current = setTimeout(() => {
+      setOverlayText(null);
+      nextCard();
+    }, 600);
+  };
+
+  const handleMarkLearned = () => {
+    showOverlayAndNext("✅ Learned");
+  };
+
+  const handleMarkLearning = () => {
+    showOverlayAndNext("📖 Learning");
   };
 
   if (!cards.length) {
@@ -108,9 +133,7 @@ export default function SetStudyPage() {
             <Button
               key={m.key}
               variant="secondary"
-              onClick={() => {
-                if (id) navigate(m.path.replace(":id", id));
-              }}
+              onClick={() => id && navigate(m.path.replace(":id", id))}
             >
               {m.label}
             </Button>
@@ -124,6 +147,7 @@ export default function SetStudyPage() {
             className="h-[300px]"
             autoFlip={isPlaying}
             onFlippedToBack={handleFlippedToBack}
+            overlayText={overlayText}
           />
         )}
 
@@ -135,10 +159,12 @@ export default function SetStudyPage() {
             setTrackProgress((p) => !p);
             setIsPlaying(false);
           }}
-          onPrev={() => setCurrentIndex((i) => Math.max(i - 1, 0))}
-          onNext={() =>
-            setCurrentIndex((i) => Math.min(i + 1, cards.length - 1))
+          onPrev={() =>
+            setCurrentIndex((i) => Math.max(i - 1, 0))
           }
+          onNext={nextCard}
+          onMarkLearned={handleMarkLearned}
+          onMarkLearning={handleMarkLearning}
           onShuffle={toggleShuffle}
           isFullscreen={false}
           onToggleFullscreen={() =>

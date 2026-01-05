@@ -10,7 +10,27 @@ import {
   Play,
   Pause,
 } from "lucide-react";
-import type { FlashcardControlsProps } from "@/constants/card";
+
+interface FlashcardControlsProps {
+  currentIndex: number;
+  total: number;
+  trackProgress: boolean;
+  onToggleTrackProgress: () => void;
+
+  onPrev: () => void;
+  onNext: () => void;
+
+  onMarkLearned: () => void;
+  onMarkLearning: () => void;
+
+  onShuffle?: () => void;
+
+  isFullscreen?: boolean;
+  onToggleFullscreen?: () => void;
+
+  isPlaying?: boolean;
+  onTogglePlay?: () => void;
+}
 
 export default function FlashcardControls({
   currentIndex,
@@ -19,11 +39,11 @@ export default function FlashcardControls({
   onToggleTrackProgress,
   onPrev,
   onNext,
+  onMarkLearned,
+  onMarkLearning,
   onShuffle,
-
   isFullscreen = false,
   onToggleFullscreen,
-
   isPlaying = false,
   onTogglePlay,
 }: FlashcardControlsProps) {
@@ -68,7 +88,7 @@ export default function FlashcardControls({
           <>
             <Button
               size="icon"
-              onClick={onPrev}
+              onClick={onMarkLearning}
               className="bg-red-400 hover:bg-red-500 text-white"
             >
               <X className="w-4 h-4" />
@@ -80,7 +100,7 @@ export default function FlashcardControls({
 
             <Button
               size="icon"
-              onClick={onNext}
+              onClick={onMarkLearned}
               className="bg-green-400 hover:bg-green-500 text-white"
             >
               <Check className="w-4 h-4" />

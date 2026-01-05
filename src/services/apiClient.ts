@@ -54,7 +54,7 @@ apiClient.interceptors.response.use(
 
         setTimeout(() => {
           isRateLimitToastShown = false;
-        }, 5000);
+        }, 3000);
       }
     }
 

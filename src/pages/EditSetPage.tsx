@@ -100,8 +100,6 @@ export default function EditSetPage() {
       });
 
       localStorage.removeItem(draftKey);
-      // updateCountsCache(id, validCards.length);
-
       toast.success("Set updated successfully!");
       navigate(`/sets/${id}/view`);
     } catch (error) {
