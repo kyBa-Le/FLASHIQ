@@ -65,7 +65,7 @@ export const SetService = {
   },
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async searchSets(query: string, signal?: AbortSignal): Promise<{ data: any[] }> {
+  async searchSets(query: string, signal?: AbortSignal): Promise<{ data: any }> {
     const res = await apiClient.get("/api/v1/sets/search", {
       params: { q: query, page: 1, limit: 100 },
       signal,

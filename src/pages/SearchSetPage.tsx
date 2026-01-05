@@ -9,7 +9,7 @@ export const SearchSetPage = () => {
   const { sets, loading } = useSearchSets(query);
 
   return (
-    <div className="w-full bg-[#F6F7FB] min-h-screen p-10">
+    <div className="w-full bg-[#00000] min-h-screen p-10">
       <div className="max-w-7xl mx-auto">
         <h1 className="text-2xl font-bold mb-6 text-slate-900">
           {query ? `Result for "${query}"` : "Search Sets"}
