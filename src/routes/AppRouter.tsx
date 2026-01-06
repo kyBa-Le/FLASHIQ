@@ -16,7 +16,6 @@ import SetStudyPage from "@/pages/SetStudyPage";
 import FlashCardPage from "@/pages/FlashCardPage";
 import MultipleChoicePage from "@/pages/MutipleChoicePage";
 import { SearchSetPage } from "@/pages/SearchSetPage";
-import FillBlankPage from "@/pages/FillBlankPage";
 
 function App() {
   return (
@@ -50,7 +49,6 @@ function App() {
             path="/sets/:id/study/multiple-choice"
             element={<MultipleChoicePage />}
           />
-          <Route path="/sets/:id/study/fill-blank" element={<FillBlankPage />} />
         </Route>
 
         <Route path="*" element={<UpcomingPage />} />

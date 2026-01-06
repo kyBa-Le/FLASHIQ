@@ -14,6 +14,8 @@ import { CardList } from "@/components/learn/CardList";
 import LearnedList from "@/components/learn/LearnedList";
 import UserInfo from "@/components/user/UserInfo";
 import { StudyMode, STUDY_MODES } from "@/constants/studyMode";
+import { LearningProgressCard } from "@/components/learn/LearningProgress";
+import { useStudyProgress } from "@/hooks/useStudyProgress";
 
 export default function SetStudyPage() {
   const { id } = useParams<{ id: string }>();
@@ -75,9 +77,7 @@ export default function SetStudyPage() {
   };
 
   const nextCard = () => {
-    setCurrentIndex((i) =>
-      i < cards.length - 1 ? i + 1 : i
-    );
+    setCurrentIndex((i) => (i < cards.length - 1 ? i + 1 : i));
   };
 
   const toggleShuffle = () => {
@@ -113,6 +113,9 @@ export default function SetStudyPage() {
   const handleMarkLearning = () => {
     showOverlayAndNext("📖 Learning");
   };
+
+  const { studyProgress, loading } = useStudyProgress(id);
+  if (loading) return null;
 
   if (!cards.length) {
     return <p className="text-center mt-10">No cards in this set</p>;
@@ -159,27 +162,34 @@ export default function SetStudyPage() {
             setTrackProgress((p) => !p);
             setIsPlaying(false);
           }}
-          onPrev={() =>
-            setCurrentIndex((i) => Math.max(i - 1, 0))
-          }
+          onPrev={() => setCurrentIndex((i) => Math.max(i - 1, 0))}
           onNext={nextCard}
           onMarkLearned={handleMarkLearned}
           onMarkLearning={handleMarkLearning}
           onShuffle={toggleShuffle}
           isFullscreen={false}
-          onToggleFullscreen={() =>
-            navigate(`/sets/${id}/study/flashcard`)
-          }
+          onToggleFullscreen={() => navigate(`/sets/${id}/study/flashcard`)}
           isPlaying={isPlaying}
           onTogglePlay={() => setIsPlaying((p) => !p)}
         />
       </div>
+      <div className="max-w-6xl mx-auto px-4 flex justify-center">
+        {studyProgress && (
+          <div className="flex justify-center">
+            <LearningProgressCard
+              mastered={studyProgress.mastered}
+              learning={studyProgress.learning}
+              newOrForgot={studyProgress.newOrForgot}
+              total={studyProgress.total}
+            />
+          </div>
+        )}
+      </div>
+
       <div className="max-w-6xl mx-auto px-4 pb-10">
         <UserInfo />
         <p>{setTitle}</p>
-        <h2 className="font-semibold mt-4">
-          You have also learned
-        </h2>
+        <h2 className="font-semibold mt-4">You have also learned</h2>
         <LearnedList />
         <h2 className="font-semibold mt-4">
           Terminology in this module ({cards.length})
