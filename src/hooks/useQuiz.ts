@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect, useCallback, useRef } from "react";
 import { StudyService } from "@/services/study.service";
-import type { QuizDto } from "@/types/quiz.type";
+import type { QuizDto, QuizMode } from "@/types/quiz.type";
 
-export const useQuiz = (setId?: string) => {
+export const useQuiz = (setId?: string, mode?: QuizMode) => {
   const [quizList, setQuizList] = useState<QuizDto[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -22,25 +22,22 @@ export const useQuiz = (setId?: string) => {
   useEffect(() => {
     if (!setId) return;
 
-    const init = async () => {
-      try {
-        await StudyService.getStudyProgress(setId);
-        setInitialized(true);
-      } catch {
-        setError("Failed to initialize study progress");
-      }
-    };
-
-    init();
+    StudyService.getStudyProgress(setId)
+      .then(() => setInitialized(true))
+      .catch(() => setError("Failed to initialize study progress"));
   }, [setId]);
 
   const fetchQuiz = useCallback(async () => {
-    if (!setId || !initialized) return;
+    if (!setId || !mode || !initialized) {
+      setLoading(false);
+      return;
+    }
 
     try {
       setLoading(true);
-      const res = await StudyService.getQuizCard(setId);
-      const data = res?.data || [];
+
+      const res = await StudyService.getQuizCard(setId, mode);
+      const data = res.data || [];
 
       if (!data.length) {
         setError("This set is empty");
@@ -62,7 +59,7 @@ export const useQuiz = (setId?: string) => {
     } finally {
       setLoading(false);
     }
-  }, [setId, initialized]);
+  }, [setId, mode, initialized]);
 
   useEffect(() => {
     fetchQuiz();
@@ -95,9 +92,7 @@ export const useQuiz = (setId?: string) => {
     answeredCount === totalRef.current;
 
   useEffect(() => {
-    if (isCompleted) {
-      setSummaryOpen(true);
-    }
+    if (isCompleted) setSummaryOpen(true);
   }, [isCompleted]);
 
   return {
@@ -111,7 +106,7 @@ export const useQuiz = (setId?: string) => {
     next,
 
     answeredCount,
-    total: totalRef.current, // ✅ FIXED
+    total: totalRef.current,
     isCompleted,
 
     summaryOpen,

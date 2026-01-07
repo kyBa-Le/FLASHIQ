@@ -39,7 +39,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>
             <Route path="/" element={<HomeUserPage />} />
-            <Route path="/search" element={<SearchSetPage/>} />
+            <Route path="/search" element={<SearchSetPage />} />
             <Route path="/library" element={<LibraryPage />} />
             <Route path="/sets/create" element={<CreateSetPage />} />
             <Route path="/sets/:id/edit" element={<EditSetPage />} />
@@ -50,7 +50,7 @@ function App() {
           <Route
             path="/sets/:id/study/multiple-choice"
             element={<MultipleChoicePage />}
-          />  
+          />
         </Route>
 
         <Route path="*" element={<UpcomingPage />} />

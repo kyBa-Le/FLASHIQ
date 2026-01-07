@@ -1,5 +1,4 @@
 /* eslint-disable react-hooks/purity */
-
 import { useState, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
@@ -8,11 +7,12 @@ import { AnswerOption } from "@/components/study/AnswerOption";
 import { RichContent } from "@/components/card-content/RichContent";
 import { ProgressStep } from "@/components/study/ProgressStep";
 import { QuizHeader } from "@/components/common/QuizHeader";
-import { StudyService } from "@/services/study.service";
-import { QuizCrypto } from "@/utils/crypto";
-import { useQuiz } from "@/hooks/useQuiz";
 import NotEnoughCardsState from "@/components/study/EmptyStateQuiz";
 import { StudySummaryModal } from "@/components/study/ModalCompleteQuiz";
+import { useQuiz } from "@/hooks/useQuiz";
+import { useQuizAnswer } from "@/hooks/useQuizAnswer";
+import { QuizCrypto } from "@/utils/crypto";
+import { QUIZ_MODE } from "@/constants/quiz.constant";
 
 export default function MultipleChoicePage() {
   const { id } = useParams<{ id: string }>();
@@ -29,56 +29,42 @@ export default function MultipleChoicePage() {
     total,
     isCompleted,
     closeSummary,
-  } = useQuiz(id);
+  } = useQuiz(id, QUIZ_MODE.MULTIPLE_CHOICE);
+
+  const { isAnswered, feedback, submitAnswer, resetAnswer } = useQuizAnswer(
+    QUIZ_MODE.MULTIPLE_CHOICE,
+    processAnswer
+  );
 
   const [selected, setSelected] = useState<string | null>(null);
-  const [isAnswered, setIsAnswered] = useState(false);
-  const [feedback, setFeedback] = useState<string | null>(null);
 
   const correctValue = useMemo(() => {
     if (!currentQuiz?.choices) return null;
-    return (
-      currentQuiz.choices.find((opt) =>
-        QuizCrypto.isCorrect(opt, currentQuiz.correctAnswer)
-      ) || null
+    return currentQuiz.choices.find((opt) =>
+      QuizCrypto.isCorrect(opt, currentQuiz.correctAnswer)
     );
-  }, [currentQuiz]);
-
-  const shuffledChoices = useMemo(() => {
-    if (!currentQuiz?.choices) return [];
-    return [...currentQuiz.choices].sort(() => Math.random() - 0.5);
   }, [currentQuiz]);
 
   const handleSelect = async (choice: string) => {
-    if (isAnswered || !currentQuiz) return;
+    if (!currentQuiz || isAnswered) return;
 
-    const isIDK = choice === "___IDK___";
+    const isIDK = choice === "__IDK__";
     const isCorrect =
       !isIDK && QuizCrypto.isCorrect(choice, currentQuiz.correctAnswer);
 
-    setIsAnswered(true);
     setSelected(isIDK ? null : choice);
-    setFeedback(
-      isCorrect
-        ? "Correct! ✨"
-        : isIDK
-        ? "Try to memorize this term!"
-        : "Don't worry, keep going! 🤞"
-    );
 
-    await StudyService.updateStudyRecordScore({
+    await submitAnswer({
       cardId: currentQuiz.cardId,
       isCorrect,
+      isIDK,
     });
-    processAnswer(isCorrect);
   };
 
   const handleNext = () => {
     next();
-
-    setIsAnswered(false);
     setSelected(null);
-    setFeedback(null);
+    resetAnswer();
   };
 
   const handleDone = () => {
@@ -103,6 +89,12 @@ export default function MultipleChoicePage() {
       <>
         <StudySummaryModal open={true} onClose={handleDone} />
       </>
+    );
+  }
+
+  if (!currentQuiz) {
+    return (
+      <div className="p-10 text-center font-semibold">Preparing quiz...</div>
     );
   }
 
@@ -171,7 +163,7 @@ export default function MultipleChoicePage() {
                     )}
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {shuffledChoices.map((opt, i) => {
+                      {currentQuiz?.choices?.map((opt, i) => {
                         let state:
                           | "default"
                           | "selected"
@@ -219,7 +211,6 @@ export default function MultipleChoicePage() {
           </div>
         </div>
       </div>
-
     </>
   );
 }
