@@ -32,6 +32,10 @@ export const CardService = {
 
   async bulkUpdateCards(payload: {setId: string, oldCards: CardWithIdDto[], newCards: CardDto[]}) {
     await apiClient.put(`/api/v1/cards/bulk`, payload)
+  },
+
+  async getCardById(cardId: string) {
+    return apiClient.get(`/api/v1/cards/${cardId}`);
   }
 };
 
