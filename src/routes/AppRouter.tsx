@@ -18,6 +18,7 @@ import MultipleChoicePage from "@/pages/MutipleChoicePage";
 import { SearchSetPage } from "@/pages/SearchSetPage";
 import AiStoryPage from "@/pages/AiStoryPage";
 import FillBlankPage from "@/pages/FillBlankPage";
+import TrueFalsePage from "@/pages/TrueFalsePage";
 
 function App() {
   return (
@@ -52,9 +53,13 @@ function App() {
             path="/sets/:id/study/multiple-choice"
             element={<MultipleChoicePage />}
           />
-           <Route
+          <Route
             path="/sets/:id/study/fill-blank"
             element={<FillBlankPage />}
+          />
+          <Route
+            path="/sets/:id/study/true-false"
+            element={<TrueFalsePage />}
           />
         </Route>
 
