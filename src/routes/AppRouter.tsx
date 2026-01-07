@@ -16,6 +16,7 @@ import SetStudyPage from "@/pages/SetStudyPage";
 import FlashCardPage from "@/pages/FlashCardPage";
 import MultipleChoicePage from "@/pages/MutipleChoicePage";
 import { SearchSetPage } from "@/pages/SearchSetPage";
+import AiStoryPage from "@/pages/AiStoryPage";
 
 function App() {
   return (
@@ -44,6 +45,7 @@ function App() {
             <Route path="/sets/:id/edit" element={<EditSetPage />} />
             <Route path="/sets/:id/view" element={<ViewDetailSetPage />} />
             <Route path="/sets/:id/study" element={<SetStudyPage />} />
+            <Route path="/story-generation" element={<AiStoryPage />} />
           </Route>
           <Route
             path="/sets/:id/study/multiple-choice"
