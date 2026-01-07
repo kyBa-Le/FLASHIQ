@@ -22,3 +22,10 @@ export interface DeckCardProps {
   username: string;
   avatarUrl?: string;
 }
+
+export interface CardItem {
+  id: string;
+  term: string;
+  definition: string;
+  example?: string;
+}

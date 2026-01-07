@@ -1,10 +1,17 @@
-import type { QuizResponse, SaveRecordPayload } from "@/types/quiz.type";
 import apiClient from "./apiClient";
+import type {
+  QuizMode,
+  QuizResponse,
+  SaveRecordPayload,
+} from "@/types/quiz.type";
 
 export const StudyService = {
-  async getQuizCard(setId: string): Promise<QuizResponse> {
+  async getQuizCard(setId: string, mode: QuizMode): Promise<QuizResponse> {
     const res = await apiClient.get<QuizResponse>(
-      `/api/v1/sets/${setId}/quiz?mode=multiple_choice`
+      `/api/v1/sets/${setId}/quiz`,
+      {
+        params: { mode },
+      }
     );
     return res.data;
   },

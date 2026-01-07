@@ -16,6 +16,7 @@ import SetStudyPage from "@/pages/SetStudyPage";
 import FlashCardPage from "@/pages/FlashCardPage";
 import MultipleChoicePage from "@/pages/MutipleChoicePage";
 import { SearchSetPage } from "@/pages/SearchSetPage";
+import FillBlankPage from "@/pages/FillBlankPage";
 
 function App() {
   return (
@@ -38,7 +39,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>
             <Route path="/" element={<HomeUserPage />} />
-            <Route path="/search" element={<SearchSetPage/>} />
+            <Route path="/search" element={<SearchSetPage />} />
             <Route path="/library" element={<LibraryPage />} />
             <Route path="/sets/create" element={<CreateSetPage />} />
             <Route path="/sets/:id/edit" element={<EditSetPage />} />
@@ -48,7 +49,8 @@ function App() {
           <Route
             path="/sets/:id/study/multiple-choice"
             element={<MultipleChoicePage />}
-          />  
+          />
+          <Route path="/sets/:id/study/fill-blank" element={<FillBlankPage />} />
         </Route>
 
         <Route path="*" element={<UpcomingPage />} />
