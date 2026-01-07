@@ -73,7 +73,7 @@ export default function TrueFalsePage() {
 
   const handleDone = () => {
     closeSummary();
-    navigate("/library");
+    navigate(`/sets/${id}/study`);
   };
 
   const getButtonStyle = (buttonType: boolean) => {
