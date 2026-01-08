@@ -56,7 +56,7 @@ export function SetFormHeader({
               action={onDelete}
               successTitle="Deleted"
               successDescription="Set has been deleted."
-              onClose={() => {}}
+              // onClose={() => {}}
             >
               <Button
                 type="button"

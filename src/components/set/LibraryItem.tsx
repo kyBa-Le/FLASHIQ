@@ -88,7 +88,6 @@ const LibraryItem: React.FC<LibraryItemProps> = ({ item, onDeleteSuccess }) => {
                     title="Confirm delete set?"
                     description="Are you sure you want to delete this set? This action cannot be undone."
                     action={handleConfirmDelete}
-                    onClose={() => {}}
                   >
                     <div className="flex items-center w-full px-2 py-2 text-sm text-red-600 cursor-pointer">
                       <Trash2 className="mr-2 h-4 w-4" />

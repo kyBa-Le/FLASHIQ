@@ -18,7 +18,6 @@ type ConfirmModalProps = {
   successDescription?: string;
   errorMessage?: string;
   children: React.ReactNode;
-  onClose: () => void | Promise<void>;
 };
 
 export default function ConfirmModal({
@@ -37,12 +36,12 @@ export default function ConfirmModal({
   const handleConfirm = async () => {
     setLoading(true);
     try {
-      await Promise.resolve(action());
+      await action();
       setConfirmOpen(false);
       setSuccessOpen(true);
     } catch (err) {
-      alert(errorMessage);
       console.error(err);
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }

@@ -85,7 +85,6 @@ export function SetForm({ index, disabled = false, onRemove }: Props) {
                 action={onRemove}
                 successTitle="Deleted"
                 successDescription="Card removed."
-                onClose={() => {}}
               >
                 <ActionTooltip label="Delete card" side="bottom">
                   <Trash2 className="cursor-pointer text-muted-foreground hover:text-destructive" />

@@ -9,7 +9,7 @@ import { SetForm } from "./SetForm";
 import { SetFormHeader } from "./SetFormHeader";
 import { SetFormControls } from "./SetFormControls";
 import { SetFormFooter } from "./SetFormFooter";
-import { ModalPublicSet } from "./ModalPuclicSet";
+import { ModalPublicSet } from "./ModalPublicSet";
 import { InputSet } from "../common/InputSet";
 import { Textarea } from "../ui/textarea";
 
@@ -40,7 +40,6 @@ export function SetFormContainer({
   const navigate = useNavigate();
   const isViewMode = mode === "view";
   const isCreateMode = mode === "create";
-  // const isEditMode = mode === "edit";
 
   const [submitAction, setSubmitAction] = useState<SubmitAction>(
     isCreateMode ? "create" : "update"
@@ -52,11 +51,7 @@ export function SetFormContainer({
     mode: "onTouched",
     defaultValues,
   });
-  const { reset } = methods;
 
-  useEffect(() => {
-    reset(defaultValues);
-  }, [defaultValues, reset]);
   const {
     register,
     control,
@@ -65,7 +60,7 @@ export function SetFormContainer({
     formState: { isSubmitting, errors },
   } = methods;
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, replace } = useFieldArray({
     control,
     name: "cards",
   });
@@ -76,19 +71,24 @@ export function SetFormContainer({
     if (!draftKey) return;
 
     const subscription = methods.watch((value) => {
-      const draftData = {
-        ...value,
-        cards: value.cards?.map((card: any) => ({
-          ...card,
-          image_url: typeof card?.image_url === "string" ? card.image_url : "",
-        })),
-      };
-      localStorage.setItem(draftKey, JSON.stringify(draftData));
+      localStorage.setItem(
+        draftKey,
+        JSON.stringify({
+          ...value,
+          cards: value.cards?.map((card: any) => ({
+            ...card,
+            image_url: typeof card?.image_url === "string" ? card.image_url : "",
+          })),
+        })
+      );
     });
 
     return () => subscription.unsubscribe();
   }, [methods, draftKey]);
 
+  const handleImportCards = (cards: SetFormValues["cards"]) => {
+    replace(cards);
+  };
   const handleFormSubmit = async (data: SetFormValues) => {
     if (isViewMode) return;
     await onSubmit(data, submitAction);
@@ -172,8 +172,8 @@ export function SetFormContainer({
         {!isViewMode && (
           <SetFormControls
             control={control}
+            onImportCards={handleImportCards}
             onDeleteAllCards={async () => {
-              if (fields.length === 0) return;
               for (let i = fields.length - 1; i >= 0; i--) remove(i);
             }}
           />

@@ -1,87 +1,72 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
-import { Button } from "@/components/ui/Button";
-import ConfirmModal from "../common/ConfirmModal";
 import { useFieldArray, type Control } from "react-hook-form";
+import { Trash2, Plus } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import ConfirmModal from "@/components/common/ConfirmModal";
+import ImportModal from "@/components/common/ImportModal";
+import type { ImportCard } from "@/utils/importBulkCards";
 import type { SetFormValues } from "@/schema/flashCard.schema";
-import { Trash2 } from "lucide-react";
-import { ActionTooltip } from "../common/ActionTooltip";
-import { ImportModal } from "@/components/common/ImportModal";
 
 type Props = {
   control: Control<SetFormValues>;
-  onDeleteAllCards?: () => void;
+  onImportCards: (cards: SetFormValues["cards"]) => void;
+  onDeleteAllCards: () => void | Promise<void>;
 };
 
-export function SetFormControls({ control, onDeleteAllCards }: Props) {
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+export function SetFormControls({
+  control,
+  onImportCards,
+  onDeleteAllCards,
+}: Props) {
+  const [openImportModal, setOpenImportModal] = useState(false);
 
-  const { fields, remove, append } = useFieldArray({
+  const { fields } = useFieldArray({
     control,
     name: "cards",
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleBulkImport = (newCards: any[]) => {
-    newCards.forEach((card) => {
-      append({
-        term: card.term,
-        definition: card.definition,
-        example: card.example || "",
-        image_url: card.image_url || "",
-      });
-    });
-  };
+  const handleImport = (parsed: ImportCard[]) => {
+    const cards: SetFormValues["cards"] = parsed.map((card) => ({
+      term: card.term,
+      definition: card.definition,
+      example: card.example || "",
+      image_url: "",
+    }));
 
-  const handleDeleteAll = async () => {
-    if (fields.length === 0) return;
-
-    if (onDeleteAllCards) {
-      await onDeleteAllCards();
-    } else {
-      for (let i = fields.length - 1; i >= 0; i--) {
-        remove(i);
-      }
-    }
+    onImportCards(cards);
+    setOpenImportModal(false);
   };
 
   return (
     <div className="flex justify-between items-center py-2">
-      <div className="flex items-center gap-2">
-        <ActionTooltip
-          label="Import from Copy paste or Word, Excel"
-          side="bottom"
+      <div className="flex gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setOpenImportModal(true)}
+          className="rounded-full"
         >
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setIsImportModalOpen(true)}
-            className="rounded-full border-slate-200 text-slate-500 text-xs h-8 hover:bg-slate-50"
-          >
-            + Import
-          </Button>
-        </ActionTooltip>
+          <Plus />
+          Import
+        </Button>
 
         <ImportModal
-          isOpen={isImportModalOpen}
-          onClose={() => setIsImportModalOpen(false)}
-          onImport={handleBulkImport}
+          isOpen={openImportModal}
+          onClose={() => setOpenImportModal(false)}
+          onImport={handleImport}
         />
       </div>
 
       {fields.length > 0 && (
         <ConfirmModal
-          title="Confirm Delete all Cards"
-          description="This action cannot be undone. All current cards in this set will be removed."
-          action={handleDeleteAll}
-          successTitle="Success!"
-          successDescription="All cards have been deleted."
-          onClose={() => {}}
+          title="Delete all cards?"
+          description="This action cannot be undone."
+          action={onDeleteAllCards}
+          successTitle="Deleted"
+          successDescription="All cards have been removed."
         >
-          <div className="p-1.5 hover:bg-red-50 rounded-full transition-colors cursor-pointer group">
-            <ActionTooltip label="Delete all cards" side="bottom">
-              <Trash2 className="h-5 w-5 text-muted-foreground group-hover:text-destructive" />
-            </ActionTooltip>
-          </div>
+          <Trash2 className="w-5 h-5 text-red-500 cursor-pointer" />
         </ConfirmModal>
       )}
     </div>
