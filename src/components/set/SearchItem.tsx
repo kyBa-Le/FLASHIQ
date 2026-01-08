@@ -1,6 +1,7 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
 
 interface SearchItemProps {
   item: {
@@ -12,8 +13,16 @@ interface SearchItemProps {
 }
 
 export default function SearchItem({ item }: SearchItemProps) {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/sets/${item.id}/study`);
+  };
   return (
-    <Card className="border border-slate-200 shadow-none hover:shadow-md transition-shadow cursor-pointer rounded-2xl bg-white overflow-hidden flex flex-col h-full">
+    <Card
+      onClick={handleClick}
+      className="border border-slate-200 shadow-none hover:shadow-md transition-shadow cursor-pointer rounded-2xl bg-white overflow-hidden flex flex-col h-full"
+    >
       <CardContent className="p-5 flex-1 space-y-4">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-orange-400" />
@@ -26,7 +35,10 @@ export default function SearchItem({ item }: SearchItemProps) {
           {item.title}
         </h3>
 
-        <Badge variant="secondary" className="bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md text-[11px]">
+        <Badge
+          variant="secondary"
+          className="bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md text-[11px]"
+        >
           {item.viewCount || 0} views
         </Badge>
       </CardContent>
@@ -39,8 +51,12 @@ export default function SearchItem({ item }: SearchItemProps) {
             </AvatarFallback>
           </Avatar>
           <div className="flex flex-col">
-            <span className="text-sm font-bold text-slate-900 leading-none">User</span>
-            <span className="text-[11px] font-medium text-slate-400 mt-1">Student</span>
+            <span className="text-sm font-bold text-slate-900 leading-none">
+              User
+            </span>
+            <span className="text-[11px] font-medium text-slate-400 mt-1">
+              Student
+            </span>
           </div>
         </div>
         <button className="text-[12px] font-bold px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors">

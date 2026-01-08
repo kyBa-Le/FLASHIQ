@@ -91,10 +91,13 @@ export const useQuiz = (setId?: string, mode?: QuizMode) => {
     quizList.length === 0 &&
     answeredCount === totalRef.current;
 
-  useEffect(() => {
-    if (isCompleted) setSummaryOpen(true);
-  }, [isCompleted]);
+  // useEffect(() => {
+  //   if (isCompleted) setSummaryOpen(true);
+  // }, [isCompleted]);
 
+  const resetQuiz = () => {
+    fetchQuiz();
+  };
   return {
     currentQuiz: quizList[currentIndex] || null,
 
@@ -108,7 +111,7 @@ export const useQuiz = (setId?: string, mode?: QuizMode) => {
     answeredCount,
     total: totalRef.current,
     isCompleted,
-
+    resetQuiz,
     summaryOpen,
     closeSummary: () => setSummaryOpen(false),
   };

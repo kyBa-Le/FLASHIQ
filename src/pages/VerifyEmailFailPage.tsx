@@ -38,8 +38,7 @@ export default function VerifyEmailFail() {
     } catch (error: unknown) {
       if (axios.isAxiosError(error)) {
         toast.error(
-          error.response?.data?.message ||
-            "Failed to resend verification email"
+          error.response?.data?.message || "Failed to resend verification email"
         );
       } else if (error instanceof Error) {
         toast.error(error.message);
