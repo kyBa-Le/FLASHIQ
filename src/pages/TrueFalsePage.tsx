@@ -109,11 +109,11 @@ export default function TrueFalsePage() {
         <div className="max-w-4xl w-full py-4">
           <Card className="rounded-[32px] border-2 border-gray-100 bg-white p-8 md:p-12 min-h-[480px] flex flex-col">
             <RichContent
-              header={<span className="font-bold text-gray-800 text-xl">Define</span>}
+              header={<span className="font-bold text-gray-800 text-xl">Term</span>}
               title={
                 <div className="flex justify-between items-start mt-6">
                   <div className="space-y-4">
-                    <p className="text-xl font-medium text-gray-800">(v) {currentQuiz.term}</p>
+                    <p className="text-xl font-medium text-gray-800">{currentQuiz.term}</p>
                     <p className="text-lg text-gray-500 italic">eg: {currentQuiz.example || "..."}</p>
                   </div>
                   {currentQuiz.image_url && (
