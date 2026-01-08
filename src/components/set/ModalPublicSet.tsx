@@ -45,11 +45,13 @@ export function ModalPublicSet({ open, onClose, defaultRole, onSave }: Props) {
         </DialogHeader>
 
         <div className="flex items-center gap-2">
-          <Input type="email"
+          <Input
+            type="email"
             placeholder="Enter email address"
             value={inviteEmail}
             onChange={(e) => setInviteEmail(e.target.value)}
-          className="border bg-white rounded-md px-3 py-2 text-sm w-full"/>
+            className="border bg-white rounded-md px-3 py-2 text-sm w-full"
+          />
 
           <Select
             value={inviteRole}
