@@ -7,12 +7,14 @@ import { useAuth } from "@/hooks/useAuth";
 import { loginSchema } from "@/schema/login.schema";
 import AuthLayout from "@/layouts/AuthLayout";
 import LoginForm from "../components/common/LoginForm";
+import type { CredentialResponse } from "@react-oauth/google";
+import { toast } from "sonner";
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 export default function LoginPage() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, loginWithGoogle } = useAuth();
   const [serverError, setServerError] = useState<string | null>(null);
 
   const form = useForm<LoginFormValues>({
@@ -57,9 +59,29 @@ export default function LoginPage() {
     }
   };
 
+  const onGoogleLoginSuccess = async (credentialResponse: CredentialResponse) => {
+    const { credential } = credentialResponse;
+
+    if (credential) {
+      try {
+        await loginWithGoogle(credential);
+        navigate('/');
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+        const message = error.response?.data?.message || "An unexpected error occurred. Please try again."
+        toast.error(message);
+      }
+    }
+  }
+
+  const onGoogleLoginError = () => {
+    toast.error("An unexpected error occurred. Please try again.");
+  }
+
   return (
     <AuthLayout>
-      <LoginForm form={form} onSubmit={onSubmit} serverError={serverError} />
+      <LoginForm form={form} onSubmit={onSubmit} serverError={serverError} onGoogleLoginSuccess={onGoogleLoginSuccess} onGoogleLoginError={onGoogleLoginError} />
     </AuthLayout>
   );
 }

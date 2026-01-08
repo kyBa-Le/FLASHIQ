@@ -1,13 +1,14 @@
 import { createContext } from "react";
-import type { JwtPayload } from "@/utils/jwt";
 import type { LoginDto } from "@/types/auth.type";
+import type { User } from "@/store/auth.store";
 
 export interface AuthContextValue {
-  user: JwtPayload | null;
+  user: User | null;
   isAuthenticated: boolean;
   loading: boolean;
   login: (data: LoginDto) => Promise<void>;
   logout: () => void;
+  loginWithGoogle: (credential: string) => Promise<void>
 }
 
 export const AuthContext = createContext<AuthContextValue>(

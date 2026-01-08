@@ -49,6 +49,10 @@ export const resendVerification = (email: string) => {
   return apiClient.post("/api/v1/auth/resend-verification", { email });
 };
 
+export const googleLogin = (token: string) => {
+  return apiClient.post("/api/v1/auth/google", { token })
+}
+
 const refreshClient = axios.create({
   baseURL: API_BASE,
   withCredentials: true,
