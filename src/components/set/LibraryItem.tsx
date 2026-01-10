@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/card";
-import { ListItemContent } from "@/components/card-content/ListItemContent"; 
-import ConfirmModal from "@/components/common/ConfirmModal"; 
+import { ListItemContent } from "@/components/card-content/ListItemContent";
+import ConfirmModal from "@/components/common/ConfirmModal";
 import { SetService } from "@/services/set.service";
 
 interface LibraryItemProps {

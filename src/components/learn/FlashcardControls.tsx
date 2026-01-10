@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/Button";
 import { Switch } from "@/components/ui/switch";
+import type { FlashcardControlsProps } from "@/types/flashCard.type";
 import {
   ChevronLeft,
   ChevronRight,
@@ -11,26 +12,6 @@ import {
   Pause,
 } from "lucide-react";
 
-interface FlashcardControlsProps {
-  currentIndex: number;
-  total: number;
-  trackProgress: boolean;
-  onToggleTrackProgress: () => void;
-
-  onPrev: () => void;
-  onNext: () => void;
-
-  onMarkLearned: () => void;
-  onMarkLearning: () => void;
-
-  onShuffle?: () => void;
-
-  isFullscreen?: boolean;
-  onToggleFullscreen?: () => void;
-
-  isPlaying?: boolean;
-  onTogglePlay?: () => void;
-}
 
 export default function FlashcardControls({
   currentIndex,
@@ -62,7 +43,7 @@ export default function FlashcardControls({
       <div className="flex items-center gap-4">
         {!trackProgress ? (
           <>
-            <Button
+            <Button type="button"
               variant="outline"
               size="icon"
               onClick={onPrev}
@@ -75,7 +56,7 @@ export default function FlashcardControls({
               {currentIndex + 1} / {total}
             </span>
 
-            <Button
+            <Button type="button"
               variant="outline"
               size="icon"
               onClick={onNext}
@@ -86,7 +67,7 @@ export default function FlashcardControls({
           </>
         ) : (
           <>
-            <Button
+            <Button type="button"
               size="icon"
               onClick={onMarkLearning}
               className="bg-red-400 hover:bg-red-500 text-white"
@@ -98,7 +79,7 @@ export default function FlashcardControls({
               {currentIndex + 1} / {total}
             </span>
 
-            <Button
+            <Button type="button"
               size="icon"
               onClick={onMarkLearned}
               className="bg-green-400 hover:bg-green-500 text-white"
@@ -111,19 +92,19 @@ export default function FlashcardControls({
 
       <div className="flex items-center gap-2">
         {onShuffle && (
-          <Button variant="ghost" size="icon" onClick={onShuffle}>
+          <Button type="button" variant="ghost" size="icon" onClick={onShuffle}>
             <Shuffle className="w-4 h-4" />
           </Button>
         )}
 
         {!isFullscreen && onToggleFullscreen && (
-          <Button variant="ghost" size="icon" onClick={onToggleFullscreen}>
+          <Button type="button" variant="ghost" size="icon" onClick={onToggleFullscreen}>
             <Maximize className="w-4 h-4" />
           </Button>
         )}
 
         {isFullscreen && !trackProgress && onTogglePlay && (
-          <Button variant="ghost" size="icon" onClick={onTogglePlay}>
+          <Button type="button" variant="ghost" size="icon" onClick={onTogglePlay}>
             {isPlaying ? (
               <Pause className="w-4 h-4" />
             ) : (

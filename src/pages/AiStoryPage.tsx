@@ -11,127 +11,137 @@ import { useUserSets } from "@/hooks/useUserSet";
 import { AiService } from "@/services/ai.service";
 import { useAuthStore } from "@/store/auth.store";
 import { useSetStore } from "@/store/set.store";
-import { Smile, AlignStartHorizontal, GraduationCap, MessageCircle, Lightbulb, Sparkles, MousePointerClick, BookOpenText, Copy, Check, Volume2 } from 'lucide-react';
+import {
+  Smile,
+  AlignStartHorizontal,
+  GraduationCap,
+  MessageCircle,
+  Lightbulb,
+  Sparkles,
+  MousePointerClick,
+  BookOpenText,
+  Copy,
+  Check,
+  Volume2,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
 export default function AiStoryPage() {
-    const styles = [
-        { name: "Funny", icon: Smile },
-        { name: "Academic", icon: GraduationCap },
-        { name: "Dialogue", icon: MessageCircle },
-        { name: "Creative", icon: Lightbulb }
-    ];
-    const [isSpeaking, setIsSpeaking] = useState(false);
-    const [story, setStory] = useState<string>("");
-    const [isGenerating, setIsGenerating] = useState(false);
-    const [copied, setCopied] = useState(false);
-    const user = useAuthStore((s) => s.user);
-    const { loading } = useUserSets(user?.id, 1);
-    const setList = useSetStore((s) => s.sets);
-    const [selectedSetId, setSelectedSetId] = useState<string | undefined>();
-    const [storyLength, setStoryLength] = useState(150)
-    const [selectedStyle, setSelectedStyle] = useState("Funny");
-    const handleGenerateStory = async () => {
-      if (!selectedSetId) {
-        toast.error("Please select a flashcard set");
-        return;
-      }
+  const styles = [
+    { name: "Funny", icon: Smile },
+    { name: "Academic", icon: GraduationCap },
+    { name: "Dialogue", icon: MessageCircle },
+    { name: "Creative", icon: Lightbulb },
+  ];
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [story, setStory] = useState<string>("");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const user = useAuthStore((s) => s.user);
+  const { loading } = useUserSets(user?.id, 1);
+  const setList = useSetStore((s) => s.sets);
+  const [selectedSetId, setSelectedSetId] = useState<string | undefined>();
+  const [storyLength, setStoryLength] = useState(150);
+  const [selectedStyle, setSelectedStyle] = useState("Funny");
+  const handleGenerateStory = async () => {
+    if (!selectedSetId) {
+      toast.error("Please select a flashcard set");
+      return;
+    }
 
-      try {
-        setIsGenerating(true);
+    try {
+      setIsGenerating(true);
 
-        const res = await AiService.generateStory(selectedSetId, {
-          storyLength: storyLength,
-          style: selectedStyle,
-        });
+      const res = await AiService.generateStory(selectedSetId, {
+        storyLength: storyLength,
+        style: selectedStyle,
+      });
 
-        setStory(res.data.story);
-        toast.success("Story generated successfully!");
-      } catch (error) {
-        console.error(error);
-        toast.error("Failed to generate story");
-      } finally {
-        setIsGenerating(false);
-      }
-    };
-   const cleanText = (text: string) => {
-     return text
-       .replace(/\*\*/g, "")
-       .replace(/<[^>]+>/g, "")
-       .replace(/\n+/g, ". ")
-       .replace(/\s+/g, " ")
-       .trim();
-   };
+      setStory(res.data.story);
+      toast.success("Story generated successfully!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to generate story");
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+  const cleanText = (text: string) => {
+    return text
+      .replace(/\*\*/g, "")
+      .replace(/<[^>]+>/g, "")
+      .replace(/\n+/g, ". ")
+      .replace(/\s+/g, " ")
+      .trim();
+  };
 
-   const formatStory = (text: string) => {
-     return text
-       .replace(
-         /(^|\n)([A-Z][a-zA-Z]+:)/g,
-         `<br/><strong class="text-black">$2</strong>`
-       )
-       .replace(
-         /\*\*(.*?)\*\*/g,
-         `<span class="font-bold text-primary">$1</span>`
-       )
-       .replace(/\n/g, "<br/>")
-       .replace(/^<br\/>/, "");
-   };
+  const formatStory = (text: string) => {
+    return text
+      .replace(
+        /(^|\n)([A-Z][a-zA-Z]+:)/g,
+        `<br/><strong class="text-black">$2</strong>`
+      )
+      .replace(
+        /\*\*(.*?)\*\*/g,
+        `<span class="font-bold text-primary">$1</span>`
+      )
+      .replace(/\n/g, "<br/>")
+      .replace(/^<br\/>/, "");
+  };
 
+  const toggleSpeakStory = (text: string) => {
+    if (!text) return;
 
+    if (window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+      return;
+    }
 
-    const toggleSpeakStory = (text: string) => {
-      if (!text) return;
+    const utterance = new SpeechSynthesisUtterance(cleanText(text));
 
-      if (window.speechSynthesis.speaking) {
-        window.speechSynthesis.cancel();
-        setIsSpeaking(false);
-        return;
-      }
+    utterance.lang = "en-US";
+    utterance.rate = 0.95;
+    utterance.pitch = 1;
+    utterance.volume = 1;
 
-      const utterance = new SpeechSynthesisUtterance(cleanText(text));
-
-      utterance.lang = "en-US";
-      utterance.rate = 0.95;
-      utterance.pitch = 1;
-      utterance.volume = 1;
-
-      utterance.onstart = () => {
-        setIsSpeaking(true);
-      };
-
-      utterance.onend = () => {
-        setIsSpeaking(false);
-      };
-
-      utterance.onerror = () => {
-        setIsSpeaking(false);
-      };
-
-      window.speechSynthesis.speak(utterance);
-    };
-    const handleCopyStory = async (text: string) => {
-      if (!text) return;
-
-      try {
-        await navigator.clipboard.writeText(cleanText(text));
-
-        setCopied(true);
-        toast.success("Copied!");
-
-        setTimeout(() => {
-          setCopied(false);
-        }, 1500);
-      } catch {
-        toast.error("Failed to copy story");
-      }
+    utterance.onstart = () => {
+      setIsSpeaking(true);
     };
 
+    utterance.onend = () => {
+      setIsSpeaking(false);
+    };
 
+    utterance.onerror = () => {
+      setIsSpeaking(false);
+    };
+
+    window.speechSynthesis.speak(utterance);
+  };
+  const handleCopyStory = async (text: string) => {
+    if (!text) return;
+
+    try {
+      await navigator.clipboard.writeText(cleanText(text));
+
+      setCopied(true);
+      toast.success("Copied!");
+
+      setTimeout(() => {
+        setCopied(false);
+      }, 1500);
+    } catch {
+      toast.error("Failed to copy story");
+    }
+  };
 
   return (
     <div className="px-4">
-      <h1 className="mb-1 text-2xl font-bold tracking-tight">Practice in Context</h1>
+      <h1 className="mb-1 text-2xl font-bold tracking-tight">
+        Practice in Context
+      </h1>
       <div className="mb-6 flex items-center justify-between">
         <p>Transform dry lists into vibrant stories</p>
         <div className="flex items-center gap-2 rounded-full bg-primary/10 px-3 py-2 text-primary">

@@ -9,7 +9,7 @@ import {
   LayoutGrid,
   Copy,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -45,10 +45,19 @@ export const QuizHeader = ({
   const [selectedMode, setSelectedMode] = useState<QuizMode>(
     title || "Multiple Choice"
   );
+  const { id: setId } = useParams<{ id: string }>();
 
-  const handleSelectMode = (mode: QuizMode, path?: string) => {
+  const handleSelectMode = (mode: QuizMode) => {
     setSelectedMode(mode);
-    if (path) navigate(path);
+
+    const pathMap: Record<QuizMode, string> = {
+      "Memory Card": `/sets/${setId}/study/flashcard`,
+      "Multiple Choice": `/sets/${setId}/study/multiple-choice`,
+      "Fill in Blank": `/sets/${setId}/study/fill-blank`,
+      "True/False": `/sets/${setId}/study/true-false`,
+    };
+
+    navigate(pathMap[mode]);
   };
 
   return (
@@ -73,9 +82,7 @@ export const QuizHeader = ({
           </DropdownMenuLabel>
 
           <DropdownMenuItem
-            onClick={() =>
-              handleSelectMode("Memory Card", "/sets/:id/study/flashcard")
-            }
+            onClick={() => handleSelectMode("Memory Card")}
             className="flex items-center gap-3 p-3 rounded-xl cursor-pointer"
           >
             <span>FlashCard</span>

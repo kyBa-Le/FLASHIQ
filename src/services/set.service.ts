@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import apiClient from "@/services/apiClient";
 import type {
   BulkAddCardsResponse,
@@ -5,11 +6,11 @@ import type {
   CreateSetDto,
   SetItem,
 } from "@/types/types";
+import { SET_API, USER_API } from "@/constants";
 
 export const SetService = {
   async createSet(payload: CreateSetDto): Promise<SetItem> {
-    const res = await apiClient.post("/api/v1/sets", payload);
-    console.log(res.data);
+    const res = await apiClient.post(SET_API.BASE, payload);
     return res.data;
   },
 
@@ -18,17 +19,14 @@ export const SetService = {
     cards: Array<{ term: string; definition: string; example?: string }>
   ): Promise<BulkAddCardsResponse> {
     const res = await apiClient.post<BulkAddCardsResponse>(
-      `/api/v1/sets/${setId}/card/bulk`,
-      {
-        data: cards,
-      }
+      SET_API.BULK_CARDS(setId),
+      { data: cards }
     );
-    console.log(res.data);
     return res.data;
   },
 
   async getMySets(userId: string, page = 1, limit = 10) {
-    const res = await apiClient.get(`/api/v1/users/${userId}/sets`, {
+    const res = await apiClient.get(USER_API.SETS_BY_USER(userId), {
       params: { page, limit },
     });
 
@@ -39,16 +37,14 @@ export const SetService = {
   },
 
   async getSetById(id: string, includeCards = false): Promise<SetItem> {
-    const res = await apiClient.get(`/api/v1/sets/${id}`, {
+    const res = await apiClient.get(SET_API.DETAIL(id), {
       params: { includeCards },
     });
     return res.data.data;
   },
-  async getSetCards(setId: string) {
-    const res = await apiClient.get<{
-      data: CardItem[];
-    }>(`/api/v1/sets/${setId}/cards`);
 
+  async getSetCards(setId: string) {
+    const res = await apiClient.get<{ data: CardItem[] }>(SET_API.CARDS(setId));
     return res.data;
   },
 
@@ -56,17 +52,19 @@ export const SetService = {
     id: string,
     payload: Partial<CreateSetDto>
   ): Promise<SetItem> {
-    const res = await apiClient.put(`/api/v1/sets/${id}`, payload);
+    const res = await apiClient.put(SET_API.DETAIL(id), payload);
     return res.data;
   },
 
   async deleteSet(id: string): Promise<void> {
-    await apiClient.delete(`/api/v1/sets/${id}`);
+    await apiClient.delete(SET_API.DETAIL(id));
   },
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async searchSets(query: string, signal?: AbortSignal): Promise<{ data: any }> {
-    const res = await apiClient.get("/api/v1/sets/search", {
+  async searchSets(
+    query: string,
+    signal?: AbortSignal
+  ): Promise<{ data: any }> {
+    const res = await apiClient.get(SET_API.SEARCH, {
       params: { q: query, page: 1, limit: 100 },
       signal,
     });

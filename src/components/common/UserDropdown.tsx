@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthStore } from "@/store/auth.store";
-import {LogOutIcon, User } from "lucide-react";
+import { LogOutIcon, User } from "lucide-react";
 import ConfirmModal from "./ConfirmModal";
 import { NavLink } from "react-router-dom";
 
