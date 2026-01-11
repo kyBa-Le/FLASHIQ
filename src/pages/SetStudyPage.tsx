@@ -11,9 +11,14 @@ import { ToggleGroupSpacing } from "@/components/learn/Toggle";
 import Flashcard from "@/components/learn/FlashCard";
 import FlashcardControls from "@/components/learn/FlashcardControls";
 import { CardList } from "@/components/learn/CardList";
-import LearnedList from "@/components/learn/LearnedList";
+// import LearnedList from "@/components/learn/LearnedList";
 import UserInfo from "@/components/user/UserInfo";
 import { StudyMode, STUDY_MODES } from "@/constants/studyMode";
+import { LearningProgressCard } from "@/components/learn/LearningProgress";
+import { useStudyProgress } from "@/hooks/useStudyProgress";
+import { useQuizAnswer } from "@/hooks/useQuizAnswer";
+import { QUIZ_MODE } from "@/constants/quiz.constant";
+import { StudySummaryModal } from "@/components/study/ModalCompleteQuiz";
 
 export default function SetStudyPage() {
   const { id } = useParams<{ id: string }>();
@@ -30,6 +35,8 @@ export default function SetStudyPage() {
   const [overlayText, setOverlayText] = useState<string | null>(null);
   const overlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const autoPlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [loadingCards, setLoadingCards] = useState(true);
+  const [showFinishModal, setShowFinishModal] = useState(false);
 
   const mode: StudyMode = useMemo(() => {
     if (!location.pathname || !id) return StudyMode.FLASHCARD;
@@ -41,11 +48,21 @@ export default function SetStudyPage() {
     return found?.key ?? StudyMode.FLASHCARD;
   }, [location.pathname, id]);
 
+  const { studyProgress, refresh } = useStudyProgress(id);
+  const { submitAnswer, resetAnswer } = useQuizAnswer(
+    QUIZ_MODE.FLASHCARD,
+    () => {
+      if (trackProgress) refresh();
+    }
+  );
+
   useEffect(() => {
     if (!id) return;
 
     const fetchData = async () => {
       try {
+        setLoadingCards(true);
+
         const set = await SetService.getSetById(id);
         const cardsData = await getCardsBySet(id);
 
@@ -56,11 +73,16 @@ export default function SetStudyPage() {
         setIsPlaying(false);
       } catch (err) {
         console.error("Failed to load set", err);
+      } finally {
+        setLoadingCards(false);
       }
     };
 
     fetchData();
   }, [id]);
+
+  const currentCard = cards[currentIndex];
+  const isLastCard = currentIndex === cards.length - 1;
 
   const handleFlippedToBack = () => {
     if (!isPlaying) return;
@@ -75,9 +97,7 @@ export default function SetStudyPage() {
   };
 
   const nextCard = () => {
-    setCurrentIndex((i) =>
-      i < cards.length - 1 ? i + 1 : i
-    );
+    setCurrentIndex((i) => (i < cards.length - 1 ? i + 1 : i));
   };
 
   const toggleShuffle = () => {
@@ -102,23 +122,43 @@ export default function SetStudyPage() {
 
     overlayTimerRef.current = setTimeout(() => {
       setOverlayText(null);
-      nextCard();
+      if (isLastCard) {
+        setShowFinishModal(true);
+      } else {
+        nextCard();
+      }
     }, 600);
   };
 
   const handleMarkLearned = () => {
+    submitAnswer({
+      cardId: currentCard.id,
+      isCorrect: true,
+    });
+    console.log("update tc");
+
     showOverlayAndNext("✅ Learned");
   };
 
   const handleMarkLearning = () => {
+    submitAnswer({
+      cardId: currentCard.id,
+      isCorrect: false,
+    });
+
     showOverlayAndNext("📖 Learning");
   };
+  useEffect(() => {
+    resetAnswer();
+  }, [currentIndex, resetAnswer]);
+
+  if (loadingCards) {
+    return <p className="text-center mt-10 text-slate-400">Loading cards...</p>;
+  }
 
   if (!cards.length) {
     return <p className="text-center mt-10">No cards in this set</p>;
   }
-
-  const currentCard = cards[currentIndex];
 
   return (
     <div>
@@ -131,6 +171,7 @@ export default function SetStudyPage() {
         <div className="grid grid-cols-2 gap-4 mb-6 mx-24">
           {STUDY_MODES.map((m) => (
             <Button
+              type="button"
               key={m.key}
               variant="secondary"
               onClick={() => id && navigate(m.path.replace(":id", id))}
@@ -159,31 +200,53 @@ export default function SetStudyPage() {
             setTrackProgress((p) => !p);
             setIsPlaying(false);
           }}
-          onPrev={() =>
-            setCurrentIndex((i) => Math.max(i - 1, 0))
-          }
+          onPrev={() => setCurrentIndex((i) => Math.max(i - 1, 0))}
           onNext={nextCard}
           onMarkLearned={handleMarkLearned}
           onMarkLearning={handleMarkLearning}
           onShuffle={toggleShuffle}
           isFullscreen={false}
-          onToggleFullscreen={() =>
-            navigate(`/sets/${id}/study/flashcard`)
-          }
+          onToggleFullscreen={() => navigate(`/sets/${id}/study/flashcard`)}
           isPlaying={isPlaying}
           onTogglePlay={() => setIsPlaying((p) => !p)}
         />
+        <StudySummaryModal
+          open={showFinishModal}
+          onClose={() => setShowFinishModal(false)}
+          title="🎉 Great job!"
+          description="You’ve reviewed all flashcards in this set."
+          primaryAction={{
+            label: "Study again",
+            onClick: () => {
+              setCurrentIndex(0);
+              setShowFinishModal(false);
+            },
+          }}
+          secondaryAction={{
+            label: "Back to sets",
+            onClick: () => setShowFinishModal(false),
+          }}
+        />
       </div>
+      <div className="max-w-6xl mx-auto px-4 flex justify-center">
+        {studyProgress && (
+          <div className="flex justify-center">
+            <LearningProgressCard
+              mastered={studyProgress.mastered}
+              learning={studyProgress.learning}
+              newOrForgot={studyProgress.newOrForgot}
+              total={studyProgress.total}
+            />
+          </div>
+        )}
+      </div>
+
       <div className="max-w-6xl mx-auto px-4 pb-10">
         <UserInfo />
-        <p>{setTitle}</p>
-        <h2 className="font-semibold mt-4">
-          You have also learned
-        </h2>
-        <LearnedList />
-        <h2 className="font-semibold mt-4">
-          Terminology in this module ({cards.length})
-        </h2>
+        <p className="font-semibold">{setTitle}</p>
+        {/* <h2 className="font-semibold mt-4">You have also learned</h2>
+        <LearnedList /> */}
+        <h2 className="mt-4">Terminology in this module ({cards.length})</h2>
         <CardList cards={cards} />
       </div>
     </div>

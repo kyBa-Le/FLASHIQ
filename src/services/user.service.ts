@@ -1,3 +1,4 @@
+import { USER_API } from "@/constants";
 import apiClient from "./apiClient";
 
 export async function getCurrentUser(): Promise<{
@@ -6,7 +7,7 @@ export async function getCurrentUser(): Promise<{
   email: string;
   avatar: string;
 } | null> {
-  const res = await apiClient.get("/api/v1/users/me");
+  const res = await apiClient.get(USER_API.ME);
 
   return res.data.data;
 };

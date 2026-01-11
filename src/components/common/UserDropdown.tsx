@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuthStore } from "@/store/auth.store";
-import {LogOutIcon, User } from "lucide-react";
+import { LogOutIcon, User } from "lucide-react";
 import ConfirmModal from "./ConfirmModal";
 import { NavLink } from "react-router-dom";
 
@@ -62,7 +62,6 @@ export default function UserDropdown() {
               title="Confirm logout this source?"
               description="Are you sure you want to logout? This action cannot be undone."
               action={logout}
-              onClose={() => {}}
             >
               <div className="flex items-center w-full px-2 py-2 text-sm text-red-600 cursor-pointer">
                 <LogOutIcon className="mr-2 h-4 w-4" />

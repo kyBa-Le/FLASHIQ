@@ -14,6 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { signupSchema } from "@/schema/signup.schema";
+import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 
 type SignupFormValues = z.infer<typeof signupSchema>;
 
@@ -21,12 +22,16 @@ interface SignupFormProps {
   form: UseFormReturn<SignupFormValues>;
   onSubmit: (data: SignupFormValues) => void;
   serverError: string | null;
+  onGoogleLoginSuccess: (credentialResponse: CredentialResponse) => void;
+  onGoogleLoginError: () => void;
 }
 
 export default function SignupForm({
   form,
   onSubmit,
   serverError,
+  onGoogleLoginSuccess,
+  onGoogleLoginError,
 }: SignupFormProps) {
   return (
     <div className="flex w-full h-full items-center justify-center px-6 py-8 overflow-y-auto">
@@ -36,18 +41,17 @@ export default function SignupForm({
           className="w-full max-w-sm space-y-6"
           noValidate
         >
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full h-11 gap-2 rounded-full bg-input"
-          >
-            <img
-              src="https://www.svgrepo.com/show/475656/google-color.svg"
-              alt="Google"
-              className="h-4 w-4"
-            />
-            Continue with Google
-          </Button>
+          <GoogleLogin
+            onSuccess={onGoogleLoginSuccess}
+            onError={onGoogleLoginError}
+            useOneTap
+            shape="pill"
+            theme="outline"
+            width="100%"
+            logo_alignment="center"
+            size="large"
+            text="continue_with"
+          />
           <div className="relative flex items-center">
             <Separator className="flex-1" />
             <span className="px-3 text-xs text-muted-foreground">

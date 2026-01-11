@@ -15,6 +15,7 @@ import {
 import type { UseFormReturn } from "react-hook-form";
 import { z } from "zod";
 import { loginSchema } from "@/schema/login.schema";
+import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 
 type LoginFormValues = z.infer<typeof loginSchema>;
 
@@ -22,12 +23,16 @@ interface LoginFormProps {
   form: UseFormReturn<LoginFormValues>;
   onSubmit: (data: LoginFormValues) => void;
   serverError: string | null;
+  onGoogleLoginSuccess: (credentialResponse: CredentialResponse) => void;
+  onGoogleLoginError: () => void;
 }
 
 export default function LoginForm({
   form,
   onSubmit,
   serverError,
+  onGoogleLoginSuccess,
+  onGoogleLoginError,
 }: LoginFormProps) {
   return (
     <div className="flex w-full h-full items-center justify-center px-6 py-8 overflow-y-auto">
@@ -36,18 +41,15 @@ export default function LoginForm({
           onSubmit={form.handleSubmit(onSubmit)}
           className="w-full max-w-sm space-y-6"
         >
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full h-11 gap-2 rounded-full bg-input"
-          >
-            <img
-              src="https://www.svgrepo.com/show/475656/google-color.svg"
-              alt="google"
-              className="h-4 w-4"
-            />
-            Login with Google
-          </Button>
+          <GoogleLogin
+            onSuccess={onGoogleLoginSuccess}
+            onError={onGoogleLoginError}
+            useOneTap
+            shape="pill"
+            theme="outline"
+            width="100%"
+            logo_alignment="center"
+          />
           <div className="relative flex items-center">
             <Separator className="flex-1" />
             <span className="px-3 text-xs text-muted-foreground">

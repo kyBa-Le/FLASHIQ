@@ -2,21 +2,22 @@ import axios from "axios";
 import type { AxiosRequestConfig } from "axios";
 import { refreshToken, logout } from "./auth.service";
 import { toast } from "sonner";
+import { ENV } from "@/constants/env";
+import { STORAGE_KEYS } from "@/constants";
 
-export const API_BASE = import.meta.env.VITE_API_BASE || "";
 
 interface AxiosRequestConfigWithRetry extends AxiosRequestConfig {
   _retry?: boolean;
 }
 
 const apiClient = axios.create({
-  baseURL: API_BASE,
+  baseURL: ENV.API_BASE,
   withCredentials: true,
   headers: { "Content-Type": "application/json" },
 });
 
 apiClient.interceptors.request.use((config) => {
-  const accessToken = localStorage.getItem("accessToken");
+  const accessToken = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN);
   if (accessToken && config.headers) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }

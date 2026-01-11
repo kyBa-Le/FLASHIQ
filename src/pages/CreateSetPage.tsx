@@ -29,42 +29,41 @@ export default function CreateSetPage() {
 
   const handleCreate = async (data: SetFormValues, action: SubmitAction) => {
     try {
-      const validInitialCards = data.cards.filter(
+      const validCards = data.cards.filter(
         (c) => c.term?.trim() || c.definition?.trim()
       );
 
-      if (validInitialCards.length === 0) {
+      if (validCards.length === 0) {
         toast.error("At least one card is required.");
         return;
       }
 
       const processedCards = [];
-      for (const card of validInitialCards) {
-        let finalUrl = "";
+
+      for (const card of validCards) {
+        let imageUrl = "";
         const val = card.image_url as any;
 
-        if (typeof val === "string") {
-          finalUrl = val;
-        } else if (val instanceof File || val instanceof Blob) {
-          finalUrl = await UploadService.uploadImage(val);
+        if (typeof val === "string") imageUrl = val;
+        else if (val instanceof File || val instanceof Blob) {
+          imageUrl = await UploadService.uploadImage(val);
         }
 
         processedCards.push({
           term: card.term?.trim() || "",
           definition: card.definition?.trim() || "",
           example: card.example?.trim() || "",
-          image_url: finalUrl,
+          image_url: imageUrl,
         });
       }
 
-      const createdSetResponse = await SetService.createSet({
+      const res = await SetService.createSet({
         title: data.title,
         description: data.description,
         isPublic: data.isPublic,
       });
 
-      const setId =
-        createdSetResponse.data?.id || (createdSetResponse as any).id;
+      const setId = res.data?.id || (res as any).id;
 
       await SetService.bulkAddCards(setId, processedCards);
 
@@ -76,7 +75,7 @@ export default function CreateSetPage() {
       });
 
       localStorage.removeItem(CREATE_DRAFT_KEY);
-      toast.success("Create Set sucessfully!");
+      toast.success("Create Set successfully!");
 
       navigate(
         action === "create_and_study"
