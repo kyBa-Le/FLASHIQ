@@ -30,7 +30,7 @@ export default function LoginPage() {
     setServerError(null);
     try {
       await login(data);
-      navigate("/");
+      navigate("/library");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       const errorResponse = err.response?.data;
@@ -65,7 +65,7 @@ export default function LoginPage() {
     if (credential) {
       try {
         await loginWithGoogle(credential);
-        navigate('/');
+        navigate('/library');
 
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {

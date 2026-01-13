@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import { Suspense } from "react";
 import ProtectedRoute from "../routes/ProtectedRoute";
 import MainLayout from "../layouts/MainLayout";
-import { HomeUserPage, LoginPage, LibraryPage } from "./lazyPages";
+import { LoginPage, LibraryPage } from "./lazyPages";
 import SignupPage from "@/pages/SignupPage";
 import VerifyEmailNoticePage from "@/pages/VerifyEmailNoticePage";
 import VerifyEmailFailPage from "@/pages/VerifyEmailFailPage";
@@ -40,7 +40,7 @@ function App() {
 
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>
-            <Route path="/" element={<HomeUserPage />} />
+            <Route path="/" element={<LibraryPage />} />
             <Route path="/search" element={<SearchSetPage />} />
             <Route path="/library" element={<LibraryPage />} />
             <Route path="/sets/create" element={<CreateSetPage />} />
