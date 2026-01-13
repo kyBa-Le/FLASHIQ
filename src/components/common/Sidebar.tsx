@@ -13,7 +13,6 @@ type SidebarItem = {
 };
 
 const mainItems: SidebarItem[] = [
-  // { id: 1, icon: Home, name: "Home", to: "/" },
   { id: 2, icon: Folder, name: "My Library", to: "/library" },
   { id: 3, icon: Bell, name: "Notifications", to: "/notifications" },
   { id: 4, icon: BookOpenText, name: "Story Generation", to: "/story-generation" },
