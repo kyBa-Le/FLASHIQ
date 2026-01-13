@@ -19,6 +19,7 @@ import { SearchSetPage } from "@/pages/SearchSetPage";
 import AiStoryPage from "@/pages/AiStoryPage";
 import FillBlankPage from "@/pages/FillBlankPage";
 import TrueFalsePage from "@/pages/TrueFalsePage";
+import SharedSetPage from "@/pages/SharedSetPage";
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
             <Route path="/" element={<LibraryPage />} />
             <Route path="/search" element={<SearchSetPage />} />
             <Route path="/library" element={<LibraryPage />} />
+            <Route path="/shared" element={<SharedSetPage />} />
             <Route path="/sets/create" element={<CreateSetPage />} />
             <Route path="/sets/:id/edit" element={<EditSetPage />} />
             <Route path="/sets/:id/view" element={<ViewDetailSetPage />} />

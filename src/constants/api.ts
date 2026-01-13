@@ -13,6 +13,7 @@ export const AUTH_API = {
 export const USER_API = {
   ME: `${API_V1}/users/me`,
   SETS_BY_USER: (userId: string) => `${API_V1}/users/${userId}/sets`,
+  SETS_BY_USER_SHARED: (userId: string) => `${API_V1}/users/${userId}/shared-sets`
 };
 
 export const SET_API = {

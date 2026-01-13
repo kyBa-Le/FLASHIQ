@@ -1,6 +1,5 @@
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
 
 interface SearchItemProps {
@@ -34,13 +33,6 @@ export default function SearchItem({ item }: SearchItemProps) {
         <p className="text-[15px] font-medium text-slate-500 leading-tight line-clamp-2 min-h-[38px]">
           {item.description}
         </p>
-
-        <Badge
-          variant="secondary"
-          className="bg-slate-100 text-slate-600 font-bold px-2 py-0.5 rounded-md text-[11px]"
-        >
-          {item.viewCount || 0} views
-        </Badge>
       </CardContent>
 
       <CardFooter className="px-5 pb-5 pt-0 flex items-center justify-between mt-auto">

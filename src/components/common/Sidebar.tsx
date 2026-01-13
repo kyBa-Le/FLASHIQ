@@ -11,7 +11,7 @@ type SidebarItem = {
   to?: string;
   action?: "button";
 };
-
+  
 const mainItems: SidebarItem[] = [
   { id: 2, icon: Folder, name: "My Library", to: "/library" },
   { id: 3, icon: Bell, name: "Notifications", to: "/notifications" },
@@ -25,7 +25,7 @@ const folderItems: SidebarItem[] = [
 ];
 
 const cardItems: SidebarItem[] = [
-  { id: 7, icon: Tags, name: "View all", to: "*" },
+  { id: 7, icon: Tags, name: "Shared sets", to: "/shared" },
   { id: 8, icon: Plus, name: "New set", to: "/sets/create" },
 ];
 const Sidebar: React.FC = () => {
