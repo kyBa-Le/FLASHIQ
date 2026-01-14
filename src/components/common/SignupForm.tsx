@@ -41,17 +41,19 @@ export default function SignupForm({
           className="w-full max-w-sm space-y-6"
           noValidate
         >
-          <GoogleLogin
-            onSuccess={onGoogleLoginSuccess}
-            onError={onGoogleLoginError}
-            useOneTap
-            shape="pill"
-            theme="outline"
-            width="100%"
-            logo_alignment="center"
-            size="large"
-            text="continue_with"
-          />
+          <div className="w-full flex justify-center">
+            <GoogleLogin
+              onSuccess={onGoogleLoginSuccess}
+              onError={onGoogleLoginError}
+              useOneTap
+              shape="pill"
+              theme="outline"
+              width="340"
+              logo_alignment="center"
+              size="large"
+              text="continue_with"
+            />
+          </div>
           <div className="relative flex items-center">
             <Separator className="flex-1" />
             <span className="px-3 text-xs text-muted-foreground">
