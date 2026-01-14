@@ -5,7 +5,7 @@ import Sidebar from "@/components/common/Sidebar";
 import { Outlet, useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/store/auth.store";
 import { useSidebarStore } from "@/store/sidebar.store";
-import { cn } from "@/lib/utils";
+import { cn, isMobile } from "@/lib/utils";
 import { NotificationService } from "@/services/notification.service";
 import { toast } from "sonner";
 import { useNotificationStore } from "@/store/notification.store";
@@ -13,9 +13,18 @@ import { useNotificationStore } from "@/store/notification.store";
 const MainLayout: React.FC = () => {
   const { fetchUser, hasFetched, loading, user } = useAuthStore();
   const isCollapsed = useSidebarStore((state) => state.isCollapsed);
+  const setCollapsed = useSidebarStore((state) => state.setCollapsed);
+
   const navigate = useNavigate();
 
   const { setNotifications, fetchInitialNotifications } = useNotificationStore();
+
+
+  useEffect(() => {
+    if (isMobile()) {
+      setCollapsed(true);
+    }
+  }, [setCollapsed]);
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
