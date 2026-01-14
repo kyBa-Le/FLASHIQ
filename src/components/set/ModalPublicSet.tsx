@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -14,45 +16,86 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { Globe } from "lucide-react";
-import { useState } from "react";
+import { X, Link2 } from "lucide-react";
+import UserInfo from "../user/UserInfo";
+import { useSetAccess } from "@/hooks/useSetAccess";
+import type { AccessUser } from "@/services/access.service";
+import PublicAccessSelect from "./PublicAccessSelect";
+import { toast } from "sonner";
 
 type Role = "viewer" | "editor";
-
 type Props = {
   open: boolean;
-  onClose: () => void;
-  defaultRole: Role;
-  onSave: (role: Role) => void;
+  onClose: (open: boolean) => void;
+  setId?: string;
+  defaultRole?: Role;
 };
-
-export function ModalPublicSet({ open, onClose, defaultRole, onSave }: Props) {
-  const [publicRole, setPublicRole] = useState<Role>(defaultRole);
+const isValidEmail = (email: string) =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+export function ModalPublicSet({
+  open,
+  onClose,
+  setId,
+  defaultRole = "viewer",
+}: Props) {
+  const { accessList, invite, remove, loading } = useSetAccess(setId);
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<Role>("viewer");
-
-  const handleSave = () => {
-    onSave(publicRole);
+  const [error, setError] = useState<string | null>(null);
+  const handleInvite = async () => {
+    if (!setId || loading) return;
+    const email = inviteEmail.trim().toLowerCase();
+    if (!email) {
+      setError("Please enter an email");
+      return;
+    }
+    if (!isValidEmail(email)) {
+      setError("Invalid email format");
+      return;
+    }
+    setError(null);
+    try {
+      await invite(email, inviteRole === "editor" ? "EDIT" : "VIEW");
+      setInviteEmail("");
+      setInviteRole("viewer");
+    } catch (err: any) {
+      setError(
+        err?.response?.data?.message ??
+          "Email does not exist or cannot be invited"
+      );
+    }
+  };
+  const handleCopyLink = async () => {
+    if (!setId) return;
+    await navigator.clipboard.writeText(
+      `${window.location.origin}/sets/${setId}/study`
+    );
+    toast.success("Link copied to clipboard");
+  };
+  const handleClose = () => {
+    setInviteEmail("");
+    setInviteRole("viewer");
+    setError(null);
+    onClose(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-xl rounded-2xl">
         <DialogHeader>
           <DialogTitle>Access management</DialogTitle>
         </DialogHeader>
-
-        <div className="flex items-center gap-2">
+        <div className="flex gap-2">
           <Input
             type="email"
-            placeholder="Enter email address"
+            placeholder="Add people"
             value={inviteEmail}
-            onChange={(e) => setInviteEmail(e.target.value)}
-            className="border bg-white rounded-md px-3 py-2 text-sm w-full"
+            onChange={(e) => {
+              setInviteEmail(e.target.value);
+              setError(null);
+            }}
           />
-
           <Select
             value={inviteRole}
             onValueChange={(v) => setInviteRole(v as Role)}
@@ -66,82 +109,58 @@ export function ModalPublicSet({ open, onClose, defaultRole, onSave }: Props) {
             </SelectContent>
           </Select>
 
-          <Button
-            onClick={() => {
-              console.log("Invite:", inviteEmail, inviteRole);
-              setInviteEmail("");
-            }}
-          >
+          <Button onClick={handleInvite} disabled={loading || !setId}>
             Send
           </Button>
         </div>
-
+        {error && <p className="text-sm text-destructive mt-1">{error}</p>}
         <Separator />
-
         <div className="space-y-3">
           <p className="text-sm font-medium text-muted-foreground">
             People with access
           </p>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Avatar>
-                <AvatarImage src="/avatar.png" />
-                <AvatarFallback>X</AvatarFallback>
-              </Avatar>
-
-              <div className="text-sm">
-                <p className="font-medium">Xa be (Owner)</p>
-                <p className="text-xs text-muted-foreground">
-                  bsa30012@gmail.com
-                </p>
-              </div>
-            </div>
-
+          <div className="flex items-center justify-between py-2">
+            <UserInfo />
             <span className="text-sm text-muted-foreground">Owner</span>
           </div>
-        </div>
-
-        <Separator />
-
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-start gap-3">
-            <Globe className="h-5 w-5 mt-1 text-muted-foreground" />
-            <div className="space-y-1">
-              <p className="font-medium">Anyone with the link</p>
-              <p className="text-sm text-muted-foreground">
-                Anyone on the internet with the link can access this set
-              </p>
+          {accessList.map((item: AccessUser) => (
+            <div key={item.id} className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center text-md">
+                  {item.user?.username?.charAt(0).toUpperCase() ?? "U"}
+                </div>
+                <div>
+                  <p className="text-sm font-medium">
+                    {item.user?.username ?? "Unknown"}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {item.user?.email}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  {item.permission === "EDIT" ? "Editor" : "Viewer"}
+                </span>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => remove(item.id)}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
-          </div>
-
-          <Select
-            value={publicRole}
-            onValueChange={(v) => setPublicRole(v as Role)}
-          >
-            <SelectTrigger className="w-[120px]">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="viewer">Viewer</SelectItem>
-              <SelectItem value="editor">Editor</SelectItem>
-            </SelectContent>
-          </Select>
+          ))}
         </div>
-
+        <Separator />
+        <PublicAccessSelect defaultRole={defaultRole} />
         <DialogFooter className="flex justify-between">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => navigator.clipboard.writeText(window.location.href)}
-            className="rounded-full"
-          >
+          <Button variant="outline" onClick={handleCopyLink}>
+            <Link2 />
             Copy link
           </Button>
-
-          <Button type="button" onClick={handleSave} className="rounded-full">
-            Save
-          </Button>
+          <Button onClick={handleClose}>Done</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
