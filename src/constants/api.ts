@@ -34,3 +34,16 @@ export const CARD_API = {
 export const STUDY_API = {
   UPDATE_RECORD: `${API_V1}/study-records`,
 };
+
+export const NOTIFICATION_API = {
+  GET_ALL: `${API_V1}/notifications`,
+  POST_FCM_TOKEN: `${API_V1}/users/fcm-token`,
+
+  MARK_AS_READ: (id: string) => `${API_V1}/notifications/${id}/read`,
+
+  MARK_ALL_READ: `${API_V1}/notifications/read-all`,
+
+  DELETE: (id: string) => `${API_V1}/notifications/${id}`,
+
+  DELETE_ALL: `${API_V1}/notifications/all`,
+};
