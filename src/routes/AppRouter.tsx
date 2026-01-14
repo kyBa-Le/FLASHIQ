@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import { Suspense } from "react";
 import ProtectedRoute from "../routes/ProtectedRoute";
 import MainLayout from "../layouts/MainLayout";
-import { HomeUserPage, LoginPage, LibraryPage } from "./lazyPages";
+import { LoginPage, LibraryPage } from "./lazyPages";
 import SignupPage from "@/pages/SignupPage";
 import VerifyEmailNoticePage from "@/pages/VerifyEmailNoticePage";
 import VerifyEmailFailPage from "@/pages/VerifyEmailFailPage";
@@ -19,6 +19,7 @@ import { SearchSetPage } from "@/pages/SearchSetPage";
 import AiStoryPage from "@/pages/AiStoryPage";
 import FillBlankPage from "@/pages/FillBlankPage";
 import TrueFalsePage from "@/pages/TrueFalsePage";
+import SharedSetPage from "@/pages/SharedSetPage";
 
 function App() {
   return (
@@ -40,9 +41,10 @@ function App() {
 
         <Route element={<ProtectedRoute />}>
           <Route element={<MainLayout />}>
-            <Route path="/" element={<HomeUserPage />} />
+            <Route path="/" element={<LibraryPage />} />
             <Route path="/search" element={<SearchSetPage />} />
             <Route path="/library" element={<LibraryPage />} />
+            <Route path="/shared" element={<SharedSetPage />} />
             <Route path="/sets/create" element={<CreateSetPage />} />
             <Route path="/sets/:id/edit" element={<EditSetPage />} />
             <Route path="/sets/:id/view" element={<ViewDetailSetPage />} />

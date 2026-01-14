@@ -1,6 +1,6 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { Home, Bell, Folder, Plus, Tags, BookOpenText } from "lucide-react";
+import { Bell, Folder, Plus, Tags, BookOpenText } from "lucide-react";
 import { useSidebarStore } from "@/store/sidebar.store";
 import { cn } from "@/lib/utils";
 
@@ -11,9 +11,8 @@ type SidebarItem = {
   to?: string;
   action?: "button";
 };
-
+  
 const mainItems: SidebarItem[] = [
-  { id: 1, icon: Home, name: "Home", to: "/" },
   { id: 2, icon: Folder, name: "My Library", to: "/library" },
   { id: 3, icon: Bell, name: "Notifications", to: "/notifications" },
   { id: 4, icon: BookOpenText, name: "Story Generation", to: "/story-generation" },
@@ -26,7 +25,7 @@ const folderItems: SidebarItem[] = [
 ];
 
 const cardItems: SidebarItem[] = [
-  { id: 7, icon: Tags, name: "View all", to: "*" },
+  { id: 7, icon: Tags, name: "Shared sets", to: "/shared" },
   { id: 8, icon: Plus, name: "New set", to: "/sets/create" },
 ];
 const Sidebar: React.FC = () => {
