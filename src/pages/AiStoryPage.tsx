@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { useUserSets } from "@/hooks/useUserSet";
+import { isMobile } from "@/lib/utils";
 import { AiService } from "@/services/ai.service";
 import { useAuthStore } from "@/store/auth.store";
 import { useSetStore } from "@/store/set.store";
@@ -143,10 +144,12 @@ export default function AiStoryPage() {
         Practice in Context
       </h1>
       <div className="mb-6 flex items-center justify-between">
-        <p>Transform dry lists into vibrant stories</p>
+        <p className="text-xs sm:text-sm">Transform dry lists into vibrant stories</p>
         <div className="flex items-center gap-2 rounded-full bg-primary/10 px-3 py-2 text-primary">
-          <Lightbulb size={18} />
-          <p>Tip! Try a funny style</p>
+          <Lightbulb size={isMobile() ? 22 : 18} />
+          <p className="text-xs sm:text-sm">
+            Tip! Try a funny style
+          </p>
         </div>
       </div>
 

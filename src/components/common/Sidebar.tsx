@@ -2,7 +2,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import { Bell, Folder, Plus, Tags, BookOpenText } from "lucide-react";
 import { useSidebarStore } from "@/store/sidebar.store";
-import { cn } from "@/lib/utils";
+import { cn, isMobile } from "@/lib/utils";
 import { useNotificationStore } from "@/store/notification.store";
 
 type SidebarItem = {
@@ -10,7 +10,6 @@ type SidebarItem = {
   name: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   to?: string;
-  action?: "button";
 };
   
 const mainItems: SidebarItem[] = [
@@ -24,18 +23,20 @@ const mainItems: SidebarItem[] = [
   },
 ];
 
-const folderItems: SidebarItem[] = [
-  { id: 4, icon: Folder, name: "Folder #1", to: "*" },
-  { id: 5, icon: Folder, name: "Folder #2", to: "*" },
-  { id: 6, icon: Plus, name: "New Folder", to: "*" },
-];
 
 const cardItems: SidebarItem[] = [
   { id: 7, icon: Tags, name: "Shared sets", to: "/shared" },
   { id: 8, icon: Plus, name: "New set", to: "/sets/create" },
 ];
+
 const Sidebar: React.FC = () => {
-  const isCollapsed = useSidebarStore((state) => state.isCollapsed);
+  const { isCollapsed, close } = useSidebarStore();
+
+  const handleItemClick = () => {
+    if (isMobile()) {
+      close();
+    }
+  };
   const notifications = useNotificationStore((state) => state.notifications);
 
   const unreadCount = React.useMemo(
@@ -47,15 +48,21 @@ const Sidebar: React.FC = () => {
     const Icon = item.icon;
     const isNotification = item.name === "Notifications";
 
-    const commonClass = ({ isActive }: { isActive?: boolean } = {}) =>
+    const className = ({ isActive }: { isActive?: boolean }) =>
       cn(
-        "flex items-center p-2 rounded-lg transition-all duration-200 hover:bg-secondary hover:text-white",
+        "flex items-center p-2 rounded-lg transition-all duration-200",
+        "hover:bg-secondary hover:text-white",
         isActive ? "bg-secondary text-white" : "text-gray-500",
         isCollapsed ? "justify-center" : "justify-start"
       );
 
-    const linkContent = (
-      <>
+    return (
+      <NavLink
+        key={item.id}
+        to={item.to ?? "#"}
+        className={className}
+        onClick={handleItemClick}
+      >
         <div className="relative flex items-center justify-center">
           <Icon className="w-5 h-5 shrink-0" />
 
@@ -76,61 +83,52 @@ const Sidebar: React.FC = () => {
               </span>
             )}
           </div>
+          
         )}
-      </>
-    );
-
-    if (item.to) {
-      return (
-        <NavLink key={item.id} to={item.to} className={commonClass}>
-          {linkContent}
-        </NavLink>
-      );
-    }
-
-    return (
-      <button
-        key={item.id}
-        type="button"
-        onClick={() => console.log(`${item.name} clicked`)}
-        className={cn(commonClass(), "w-full")}
-      >
-        {linkContent}
-      </button>
+      </NavLink>
     );
   };
 
   return (
-    <aside
-      className={cn(
-        "p-4 bg-white border-r border-gray-200 h-full transition-all duration-300 ease-in-out shrink-0",
-        isCollapsed ? "w-20" : "w-70"
+    <>
+      {!isCollapsed && (
+        <div
+          className="fixed inset-0 bg-black/40 z-40 md:hidden"
+          onClick={close}
+        />
       )}
-    >
-      <nav className="space-y-3" role="navigation" aria-label="Sidebar">
-        <div className="space-y-1">{mainItems.map((it) => renderLink(it))}</div>
 
-        <hr className="border-gray-100" />
+      <aside
+        className={cn(
+          "bg-white border-r border-gray-200 transition-all duration-300 ease-in-out p-4",
 
-        {!isCollapsed && (
-          <div className="ml-2 text-sm font-medium text-gray-500">
-            Your Folder
-          </div>
+          /* MOBILE */
+          "hidden",
+          !isCollapsed &&
+          "fixed inset-y-0 left-0 z-50 block w-70 h-screen",
+
+          /* DESKTOP */
+          "md:block md:static md:h-full md:shrink-0",
+          isCollapsed ? "md:w-20" : "md:w-70"
         )}
-        <div className="space-y-1">
-          {folderItems.map((it) => renderLink(it))}
-        </div>
-
-        <hr className="border-gray-100" />
-
-        {!isCollapsed && (
-          <div className="ml-2 text-sm font-medium text-gray-500">
-            Your Card set
+      >
+        <nav className="space-y-3" role="navigation">
+          <div className="space-y-1">
+            {mainItems.map(renderLink)}
           </div>
-        )}
-        <div className="space-y-1">{cardItems.map((it) => renderLink(it))}</div>
-      </nav>
-    </aside>
+          <hr className="border-gray-100" />
+
+          {!isCollapsed && (
+            <div className="ml-2 text-sm font-medium text-gray-500">
+              Your Card set
+            </div>
+          )}
+          <div className="space-y-1">
+            {cardItems.map(renderLink)}
+          </div>
+        </nav>
+      </aside>
+    </>
   );
 };
 

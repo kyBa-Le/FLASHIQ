@@ -10,10 +10,8 @@ export default function SharedSetsPage() {
   const [page, setPage] = useState(1);
   const user = useAuthStore((s) => s.user);
 
-  // Hook gọi API getSharedSets - Backend đã lo việc lọc dữ liệu
   const { loading, sets, total, removeSet } = useSharedSets(user?.id, page);
 
-  // Vì API đã chuẩn, ta group trực tiếp dữ liệu trả về
   const groupedSets = useMemo(() => groupSetsByDate(sets), [sets]);
   
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -23,10 +21,7 @@ export default function SharedSetsPage() {
         key={set.id}
         item={{
           ...set,
-          // Card count
           card_count: set.card_count ?? set.cardCount ?? 0,
-          // ĐẢM BẢO FIELD NÀY KHỚP VỚI API
-          // Nếu API trả về owner_name, bạn phải viết chính xác là set.owner_name
           username: set.ownerName || "Unknown Author",
         }}
         onDeleteSuccess={(id) => {

@@ -8,7 +8,7 @@ import VerifyEmailNoticePage from "@/pages/VerifyEmailNoticePage";
 import VerifyEmailFailPage from "@/pages/VerifyEmailFailPage";
 import VerifyEmailSuccessPage from "@/pages/VerifyEmailSuccessPage";
 import VerifyEmailHandlerPage from "@/pages/VerifyEmailHandlerPage";
-import UpcomingPage from "@/pages/UpcomingPage";
+import NotFoundPage from "@/pages/NotFoundPage";
 import ViewDetailSetPage from "@/pages/ViewDetailSet";
 import CreateSetPage from "@/pages/CreateSetPage";
 import EditSetPage from "@/pages/EditSetPage";
@@ -67,7 +67,7 @@ function App() {
           />
         </Route>
 
-        <Route path="*" element={<UpcomingPage />} />
+        <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </Suspense>
   );

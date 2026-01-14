@@ -15,8 +15,7 @@ const MainLayout: React.FC = () => {
   const isCollapsed = useSidebarStore((state) => state.isCollapsed);
   const navigate = useNavigate();
 
-  const { setNotifications, fetchInitialNotifications } =
-    useNotificationStore();
+  const { setNotifications, fetchInitialNotifications } = useNotificationStore();
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -68,16 +67,8 @@ const MainLayout: React.FC = () => {
   return (
     <div className="h-screen flex flex-col bg-white overflow-hidden">
       <Header />
-      <div className="flex flex-1 overflow-hidden">
-        <aside
-          className={cn(
-            "h-full border-r bg-white transition-all duration-300 ease-in-out shrink-0 overflow-hidden",
-            isCollapsed ? "w-20" : "w-64"
-          )}
-        >
-          <Sidebar />
-        </aside>
-
+      <div className="flex flex-1 overflow-hidden relative">
+        <Sidebar />
         <main className="flex-1 overflow-y-auto bg-gray-50/50">
           <div
             className={cn(

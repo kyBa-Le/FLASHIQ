@@ -11,7 +11,7 @@ import {
   Play,
   Pause,
 } from "lucide-react";
-
+import { cn } from "@/lib/utils";
 
 export default function FlashcardControls({
   currentIndex,
@@ -27,84 +27,127 @@ export default function FlashcardControls({
   onToggleFullscreen,
   isPlaying = false,
   onTogglePlay,
-}: FlashcardControlsProps) {
+  compact = false,
+}: FlashcardControlsProps & { compact?: boolean }) {
   return (
-    <div className="w-full flex items-center justify-between px-6 py-4">
-      <div className="flex items-center gap-3">
-        <span className="text-sm font-medium hidden sm:inline">
-          Track progress
-        </span>
+    <div
+      className={cn(
+        "w-full flex items-center justify-between",
+        compact ? "px-3 py-2" : "px-6 py-4"
+      )}
+    >
+      <div className={cn("flex items-center", compact ? "gap-2" : "gap-3")}>
+        {!compact && (
+          <span className="text-sm font-medium hidden sm:inline">
+            Track progress
+          </span>
+        )}
         <Switch
           checked={trackProgress}
           onCheckedChange={onToggleTrackProgress}
         />
       </div>
 
-      <div className="flex items-center gap-4">
+      <div
+        className={cn(
+          "flex items-center",
+          compact ? "gap-2" : "gap-4"
+        )}
+      >
         {!trackProgress ? (
           <>
-            <Button type="button"
+            <Button
+              type="button"
               variant="outline"
               size="icon"
               onClick={onPrev}
               disabled={currentIndex === 0}
             >
-              <ChevronLeft className="w-4 h-4" />
+              <ChevronLeft className={compact ? "w-3.5 h-3.5" : "w-4 h-4"} />
             </Button>
 
-            <span className="text-sm font-medium min-w-[60px] text-center">
+            <span
+              className={cn(
+                "text-sm font-medium text-center",
+                compact ? "min-w-[48px]" : "min-w-[60px]"
+              )}
+            >
               {currentIndex + 1} / {total}
             </span>
 
-            <Button type="button"
+            <Button
+              type="button"
               variant="outline"
               size="icon"
               onClick={onNext}
               disabled={currentIndex === total - 1}
             >
-              <ChevronRight className="w-4 h-4" />
+              <ChevronRight className={compact ? "w-3.5 h-3.5" : "w-4 h-4"} />
             </Button>
           </>
         ) : (
           <>
-            <Button type="button"
+            <Button
+              type="button"
               size="icon"
               onClick={onMarkLearning}
-              className="bg-red-400 hover:bg-red-500 text-white"
+              className={cn(
+                "bg-red-400 hover:bg-red-500 text-white",
+                compact && "h-8 w-8"
+              )}
             >
-              <X className="w-4 h-4" />
+              <X className={compact ? "w-3.5 h-3.5" : "w-4 h-4"} />
             </Button>
 
-            <span className="text-sm font-medium min-w-[60px] text-center">
+            <span
+              className={cn(
+                "text-sm font-medium text-center",
+                compact ? "min-w-[48px]" : "min-w-[60px]"
+              )}
+            >
               {currentIndex + 1} / {total}
             </span>
 
-            <Button type="button"
+            <Button
+              type="button"
               size="icon"
               onClick={onMarkLearned}
-              className="bg-green-400 hover:bg-green-500 text-white"
+              className={cn(
+                "bg-green-400 hover:bg-green-500 text-white",
+                compact && "h-8 w-8"
+              )}
             >
-              <Check className="w-4 h-4" />
+              <Check className={compact ? "w-3.5 h-3.5" : "w-4 h-4"} />
             </Button>
           </>
         )}
       </div>
 
-      <div className="flex items-center gap-2">
-        {onShuffle && (
+      <div className={cn("flex items-center", compact ? "gap-1" : "gap-2")}>
+        {onShuffle && !compact && (
           <Button type="button" variant="ghost" size="icon" onClick={onShuffle}>
             <Shuffle className="w-4 h-4" />
           </Button>
         )}
 
-        {!isFullscreen && onToggleFullscreen && (
-          <Button type="button" variant="ghost" size="icon" onClick={onToggleFullscreen}>
+        {!isFullscreen && onToggleFullscreen && !compact && (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={onToggleFullscreen}
+          >
             <Maximize className="w-4 h-4" />
           </Button>
         )}
 
         {isFullscreen && !trackProgress && onTogglePlay && (
-          <Button type="button" variant="ghost" size="icon" onClick={onTogglePlay}>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={onTogglePlay}
+          >
             {isPlaying ? (
               <Pause className="w-4 h-4" />
             ) : (
