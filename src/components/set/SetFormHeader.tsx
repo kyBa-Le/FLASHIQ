@@ -22,7 +22,6 @@ export function SetFormHeader({
   mode,
   submitLabel,
   onTogglePublic,
-  onOpenPublicModal,
   onBack,
   onEdit,
   onDelete,
@@ -56,7 +55,6 @@ export function SetFormHeader({
               action={onDelete}
               successTitle="Deleted"
               successDescription="Set has been deleted."
-              // onClose={() => {}}
             >
               <Button
                 type="button"
@@ -73,7 +71,6 @@ export function SetFormHeader({
           <div className="flex items-center gap-3">
             <span
               className="px-4 py-1 rounded-full bg-purple-600 text-sm text-white cursor-pointer"
-              onClick={onOpenPublicModal}
             >
               Public
             </span>

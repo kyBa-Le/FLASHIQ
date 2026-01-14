@@ -165,7 +165,7 @@ export default function SetStudyPage() {
       <div className="max-w-3xl mx-auto px-4 py-6">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-2xl font-semibold">{setTitle}</h3>
-          <ToggleGroupSpacing />
+          <ToggleGroupSpacing setId={id ? id : ""} />
         </div>
 
         <div className="grid grid-cols-2 gap-4 mb-6 mx-24">
@@ -244,8 +244,6 @@ export default function SetStudyPage() {
       <div className="max-w-6xl mx-auto px-4 pb-10">
         <UserInfo />
         <p className="font-semibold">{setTitle}</p>
-        {/* <h2 className="font-semibold mt-4">You have also learned</h2>
-        <LearnedList /> */}
         <h2 className="mt-4">Terminology in this module ({cards.length})</h2>
         <CardList cards={cards} />
       </div>
