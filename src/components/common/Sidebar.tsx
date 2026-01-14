@@ -3,6 +3,7 @@ import { NavLink } from "react-router-dom";
 import { Bell, Folder, Plus, Tags, BookOpenText } from "lucide-react";
 import { useSidebarStore } from "@/store/sidebar.store";
 import { cn } from "@/lib/utils";
+import { useNotificationStore } from "@/store/notification.store";
 
 type SidebarItem = {
   id: number;
@@ -15,7 +16,12 @@ type SidebarItem = {
 const mainItems: SidebarItem[] = [
   { id: 2, icon: Folder, name: "My Library", to: "/library" },
   { id: 3, icon: Bell, name: "Notifications", to: "/notifications" },
-  { id: 4, icon: BookOpenText, name: "Story Generation", to: "/story-generation" },
+  {
+    id: 4,
+    icon: BookOpenText,
+    name: "Story Generation",
+    to: "/story-generation",
+  },
 ];
 
 const folderItems: SidebarItem[] = [
@@ -30,9 +36,16 @@ const cardItems: SidebarItem[] = [
 ];
 const Sidebar: React.FC = () => {
   const isCollapsed = useSidebarStore((state) => state.isCollapsed);
+  const notifications = useNotificationStore((state) => state.notifications);
+
+  const unreadCount = React.useMemo(
+    () => notifications.filter((n) => !n.isRead).length,
+    [notifications]
+  );
 
   const renderLink = (item: SidebarItem) => {
     const Icon = item.icon;
+    const isNotification = item.name === "Notifications";
 
     const commonClass = ({ isActive }: { isActive?: boolean } = {}) =>
       cn(
@@ -43,11 +56,26 @@ const Sidebar: React.FC = () => {
 
     const linkContent = (
       <>
-        <Icon className="w-4 h-4 shrink-0" />
+        <div className="relative flex items-center justify-center">
+          <Icon className="w-5 h-5 shrink-0" />
+
+          {isNotification && unreadCount > 0 && isCollapsed && (
+            <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-white animate-in zoom-in">
+              {unreadCount > 9 ? "9+" : unreadCount}
+            </span>
+          )}
+        </div>
+
         {!isCollapsed && (
-          <span className="ml-2 text-sm font-medium whitespace-nowrap">
-            {item.name}
-          </span>
+          <div className="ml-3 flex items-center justify-between w-full overflow-hidden">
+            <span className="text-sm font-medium truncate">{item.name}</span>
+
+            {isNotification && unreadCount > 0 && (
+              <span className="me-20 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center shadow-sm">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
+          </div>
         )}
       </>
     );

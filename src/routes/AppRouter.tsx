@@ -20,6 +20,7 @@ import AiStoryPage from "@/pages/AiStoryPage";
 import FillBlankPage from "@/pages/FillBlankPage";
 import TrueFalsePage from "@/pages/TrueFalsePage";
 import SharedSetPage from "@/pages/SharedSetPage";
+import NotificationPage from "@/pages/NotificationPage";
 
 function App() {
   return (
@@ -50,6 +51,7 @@ function App() {
             <Route path="/sets/:id/view" element={<ViewDetailSetPage />} />
             <Route path="/sets/:id/study" element={<SetStudyPage />} />
             <Route path="/story-generation" element={<AiStoryPage />} />
+            <Route path="/notifications" element={<NotificationPage />} />
           </Route>
           <Route
             path="/sets/:id/study/multiple-choice"
