@@ -23,11 +23,6 @@ const mainItems: SidebarItem[] = [
   },
 ];
 
-const folderItems: SidebarItem[] = [
-  { id: 5, icon: Folder, name: "Folder #1", to: "*" },
-  { id: 6, icon: Folder, name: "Folder #2", to: "*" },
-  { id: 7, icon: Plus, name: "New Folder", to: "*" },
-];
 
 const cardItems: SidebarItem[] = [
   { id: 7, icon: Tags, name: "Shared sets", to: "/shared" },
@@ -121,18 +116,6 @@ const Sidebar: React.FC = () => {
           <div className="space-y-1">
             {mainItems.map(renderLink)}
           </div>
-
-          <hr className="border-gray-100" />
-
-          {!isCollapsed && (
-            <div className="ml-2 text-sm font-medium text-gray-500">
-              Your Folder
-            </div>
-          )}
-          <div className="space-y-1">
-            {folderItems.map(renderLink)}
-          </div>
-
           <hr className="border-gray-100" />
 
           {!isCollapsed && (
