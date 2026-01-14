@@ -20,12 +20,17 @@ interface LibraryItemProps {
     title: string;
     card_count: number;
     username: string;
+    can_edit?: boolean; 
+    is_owner?: boolean;
   };
   onDeleteSuccess?: (id: string) => void;
 }
 
 const LibraryItem: React.FC<LibraryItemProps> = ({ item, onDeleteSuccess }) => {
   const navigate = useNavigate();
+
+  const canEdit = item.is_owner || item.can_edit;
+  const isOwner = item.is_owner;
 
   const handleAction = (e: React.MouseEvent, path: string) => {
     e.stopPropagation();
@@ -61,23 +66,22 @@ const LibraryItem: React.FC<LibraryItemProps> = ({ item, onDeleteSuccess }) => {
                 <MoreHorizontal className="h-5 w-5" />
               </Button>
             </DropdownMenuTrigger>
-
             <DropdownMenuContent align="end" className="w-48 shadow-lg">
               <DropdownMenuItem
-                className="cursor-pointer py-2"
                 onClick={(e) => handleAction(e, `/sets/${item.id}/view`)}
               >
                 <Eye className="mr-2 h-4 w-4" />
                 <span>View Details</span>
               </DropdownMenuItem>
 
-              <DropdownMenuItem
-                className="cursor-pointer py-2"
-                onClick={(e) => handleAction(e, `/sets/${item.id}/edit`)}
-              >
-                <Pencil className="mr-2 h-4 w-4" />
-                <span>Edit Set</span>
-              </DropdownMenuItem>
+              {canEdit && (
+                <DropdownMenuItem
+                  onClick={(e) => handleAction(e, `/sets/${item.id}/edit`)}
+                >
+                  <Pencil className="mr-2 h-4 w-4" />
+                  <span>Edit Set</span>
+                </DropdownMenuItem>
+              )}
 
               <DropdownMenuItem
                 onSelect={(e) => e.preventDefault()}
@@ -85,13 +89,19 @@ const LibraryItem: React.FC<LibraryItemProps> = ({ item, onDeleteSuccess }) => {
               >
                 <div className="w-full" onClick={(e) => e.stopPropagation()}>
                   <ConfirmModal
-                    title="Confirm delete set?"
-                    description="Are you sure you want to delete this set? This action cannot be undone."
+                    title={isOwner ? "Delete set?" : "Remove shared set?"}
+                    description={
+                      isOwner
+                        ? "This will delete the set permanently."
+                        : "This will remove it from your library. You will need the link to access it again."
+                    }
                     action={handleConfirmDelete}
                   >
                     <div className="flex items-center w-full px-2 py-2 text-sm text-red-600 cursor-pointer">
                       <Trash2 className="mr-2 h-4 w-4" />
-                      <span className="font-medium">Delete Set</span>
+                      <span className="font-medium">
+                        {isOwner ? "Delete Set" : "Remove from list"}
+                      </span>
                     </div>
                   </ConfirmModal>
                 </div>

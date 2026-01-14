@@ -1,6 +1,6 @@
-import React, { useState } from "react"; 
+import React, { useState } from "react";
 import { Menu, Search } from "lucide-react";
-import { NavLink, useNavigate } from "react-router-dom"; 
+import { NavLink, useNavigate } from "react-router-dom";
 import { ActionTooltip } from "./ActionTooltip";
 import UserDropdown from "./UserDropdown";
 import { useSidebarStore } from "@/store/sidebar.store";
@@ -24,7 +24,7 @@ const Header: React.FC = () => {
   return (
     <header className="w-full border-b bg-white">
       <div className="mx-auto w-full max-w-[100vw] px-[2vw]">
-        <div className="flex h-[8vh] min-h-[56px] max-h-[64px] items-center justify-between">
+        <div className="flex h-[8vh] min-h-[56px] max-h-[64px] items-center gap-3">
           <div className="flex items-center gap-3 shrink-0">
             <button
               onClick={toggle}
@@ -34,7 +34,10 @@ const Header: React.FC = () => {
               <Menu className="h-5 w-5 text-gray-600" />
             </button>
 
-            <NavLink to="/" className="block h-10 w-10 shrink-0">
+            <NavLink
+              to="/"
+              className="hidden sm:block h-10 w-10 shrink-0"
+            >
               <ActionTooltip label="Back to home page">
                 <img
                   src={LOGO_SRC}
@@ -45,8 +48,11 @@ const Header: React.FC = () => {
             </NavLink>
           </div>
 
-          <div className="flex-1 max-w-2xl min-w-0 hidden sm:block">
-            <form onSubmit={handleSearch} className="relative w-full max-w-md mx-auto">
+          <div className="flex-1 min-w-0">
+            <form
+              onSubmit={handleSearch}
+              className="relative w-full max-w-md mx-auto"
+            >
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <InputSet
                 type="search"

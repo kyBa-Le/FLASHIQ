@@ -36,6 +36,17 @@ export const SetService = {
     };
   },
 
+  async getSharedSets(userId: string, page = 1, limit = 10){
+    const res = await apiClient.get(USER_API.SETS_BY_USER_SHARED(userId), {
+      params: {page, limit},
+    })
+
+    return {
+      sets: res.data.data,
+      pagination: res.data.pagination
+    }
+  },
+
   async getSetById(id: string, includeCards = false): Promise<SetItem> {
     const res = await apiClient.get(SET_API.DETAIL(id), {
       params: { includeCards },

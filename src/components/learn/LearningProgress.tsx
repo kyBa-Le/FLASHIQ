@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, Book, AlertCircle } from "lucide-react";
 import { useMemo } from "react";
 import { ActionTooltip } from "@/components/common/ActionTooltip";
+import { isMobile, cn } from "@/lib/utils";
 
 interface LearningProgressProps {
   mastered: number;
@@ -82,8 +83,18 @@ export const LearningProgressCard = ({
       </CardHeader>
 
       <CardContent>
-        <div className="flex flex-col lg:flex-row items-center gap-10 mt-3">
-          <div className="relative w-36 h-36 shrink-0">
+        <div
+          className={cn(
+            "flex items-center gap-10 mt-3",
+            isMobile() ? "flex-col" : "flex-row"
+          )}
+        >
+          <div
+            className={cn(
+              "relative shrink-0",
+              isMobile() ? "w-28 h-28" : "w-36 h-36"
+            )}
+          >
             <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
               <circle
                 className="text-slate-200"
@@ -94,6 +105,7 @@ export const LearningProgressCard = ({
                 cy="18"
                 r="16"
               />
+
               {cardsInfo.map(
                 (item, idx) =>
                   item.percent > 0 && (
@@ -105,13 +117,11 @@ export const LearningProgressCard = ({
                         className="transition-all duration-300 cursor-help hover:stroke-[4.5]"
                         stroke={item.color}
                         strokeWidth="3.5"
-                        strokeDasharray={`${item.percent} ${
-                          100 - item.percent
-                        }`}
+                        strokeDasharray={`${item.percent} ${100 - item.percent
+                          }`}
                         strokeDashoffset={`-${cardsInfo
                           .slice(0, idx)
                           .reduce((sum, prev) => sum + prev.percent, 0)}`}
-                        // strokeLinecap="round"
                         fill="none"
                         cx="18"
                         cy="18"
@@ -132,18 +142,31 @@ export const LearningProgressCard = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full">
+          <div
+            className={cn(
+              isMobile()
+                ? "flex gap-3 overflow-x-auto w-full pb-2"
+                : "grid grid-cols-3 gap-4 w-full"
+            )}
+          >
             {cardsInfo.map((item) => (
               <div
                 key={item.label}
-                className="bg-white p-4 rounded-2xl flex-1 flex items-center gap-4 shadow-sm border border-slate-100 cursor-default transition-transform hover:scale-[1.02] h-40"
+                className={cn(
+                  "bg-white rounded-2xl flex items-center gap-4 shadow-sm border border-slate-100 cursor-default transition-transform hover:scale-[1.02]",
+                  isMobile() ? "min-w-[220px] p-3" : "p-4 h-40"
+                )}
               >
                 <div
                   className="p-3 rounded-xl flex items-center justify-center"
-                  style={{ backgroundColor: item.color, color: item.iconColor }}
+                  style={{
+                    backgroundColor: item.color,
+                    color: item.iconColor,
+                  }}
                 >
                   {item.icon}
                 </div>
+
                 <div className="flex flex-col justify-center">
                   <p className="text-[10px] font-bold text-slate-400 uppercase">
                     {item.label}

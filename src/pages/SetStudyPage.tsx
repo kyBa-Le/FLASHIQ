@@ -11,7 +11,6 @@ import { ToggleGroupSpacing } from "@/components/learn/Toggle";
 import Flashcard from "@/components/learn/FlashCard";
 import FlashcardControls from "@/components/learn/FlashcardControls";
 import { CardList } from "@/components/learn/CardList";
-// import LearnedList from "@/components/learn/LearnedList";
 import UserInfo from "@/components/user/UserInfo";
 import { StudyMode, STUDY_MODES } from "@/constants/studyMode";
 import { LearningProgressCard } from "@/components/learn/LearningProgress";
@@ -19,6 +18,7 @@ import { useStudyProgress } from "@/hooks/useStudyProgress";
 import { useQuizAnswer } from "@/hooks/useQuizAnswer";
 import { QUIZ_MODE } from "@/constants/quiz.constant";
 import { StudySummaryModal } from "@/components/study/ModalCompleteQuiz";
+import { isMobile, cn } from "@/lib/utils";
 
 export default function SetStudyPage() {
   const { id } = useParams<{ id: string }>();
@@ -40,11 +40,9 @@ export default function SetStudyPage() {
 
   const mode: StudyMode = useMemo(() => {
     if (!location.pathname || !id) return StudyMode.FLASHCARD;
-
     const found = STUDY_MODES.find((m) =>
       location.pathname.includes(m.path.replace(":id", id))
     );
-
     return found?.key ?? StudyMode.FLASHCARD;
   }, [location.pathname, id]);
 
@@ -116,9 +114,7 @@ export default function SetStudyPage() {
     setOverlayText(text);
     setIsPlaying(false);
 
-    if (overlayTimerRef.current) {
-      clearTimeout(overlayTimerRef.current);
-    }
+    if (overlayTimerRef.current) clearTimeout(overlayTimerRef.current);
 
     overlayTimerRef.current = setTimeout(() => {
       setOverlayText(null);
@@ -131,23 +127,15 @@ export default function SetStudyPage() {
   };
 
   const handleMarkLearned = () => {
-    submitAnswer({
-      cardId: currentCard.id,
-      isCorrect: true,
-    });
-    console.log("update tc");
-
+    submitAnswer({ cardId: currentCard.id, isCorrect: true });
     showOverlayAndNext("✅ Learned");
   };
 
   const handleMarkLearning = () => {
-    submitAnswer({
-      cardId: currentCard.id,
-      isCorrect: false,
-    });
-
+    submitAnswer({ cardId: currentCard.id, isCorrect: false });
     showOverlayAndNext("📖 Learning");
   };
+
   useEffect(() => {
     resetAnswer();
   }, [currentIndex, resetAnswer]);
@@ -156,24 +144,38 @@ export default function SetStudyPage() {
     return <p className="text-center mt-10 text-slate-400">Loading cards...</p>;
   }
 
-  if (!cards.length) {
-    return <p className="text-center mt-10">No cards in this set</p>;
-  }
-
   return (
     <div>
       <div className="max-w-3xl mx-auto px-4 py-6">
-        <div className="flex justify-between items-center mb-6">
+        <div
+          className={cn(
+            "mb-6",
+            isMobile() ? "space-y-3" : "flex justify-between items-center"
+          )}
+        >
           <h3 className="text-2xl font-semibold">{setTitle}</h3>
-          <ToggleGroupSpacing />
+
+          {!isMobile() && <ToggleGroupSpacing setId={id ? id : ""} />}
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-6 mx-24">
+        <div
+          className={cn(
+            "grid gap-4 mb-8",
+            isMobile()
+              ? "grid-cols-2"
+              : "grid-cols-2 max-w-2xl mx-auto"
+          )}
+        >
           {STUDY_MODES.map((m) => (
             <Button
-              type="button"
               key={m.key}
               variant="secondary"
+              className={cn(
+                "w-full rounded-xl transition-all cursor-pointer",
+                isMobile()
+                  ? "py-3 text-sm"
+                  : "py-6 min-h-[56px] text-base font-semibold"
+              )}
               onClick={() => id && navigate(m.path.replace(":id", id))}
             >
               {m.label}
@@ -181,35 +183,45 @@ export default function SetStudyPage() {
           ))}
         </div>
 
-        {mode === StudyMode.FLASHCARD && (
+
+        {mode === StudyMode.FLASHCARD && currentCard && (
           <Flashcard
             key={currentCard.id}
             card={currentCard}
-            className="h-[300px]"
+            className={cn(isMobile() ? "h-[230px]" : "h-[300px]")}
             autoFlip={isPlaying}
-            onFlippedToBack={handleFlippedToBack}
+            onFlippedToBack={() => {
+              if (!isPlaying) return;
+              handleFlippedToBack();
+            }}
             overlayText={overlayText}
           />
         )}
 
-        <FlashcardControls
-          currentIndex={currentIndex}
-          total={cards.length}
-          trackProgress={trackProgress}
-          onToggleTrackProgress={() => {
-            setTrackProgress((p) => !p);
-            setIsPlaying(false);
-          }}
-          onPrev={() => setCurrentIndex((i) => Math.max(i - 1, 0))}
-          onNext={nextCard}
-          onMarkLearned={handleMarkLearned}
-          onMarkLearning={handleMarkLearning}
-          onShuffle={toggleShuffle}
-          isFullscreen={false}
-          onToggleFullscreen={() => navigate(`/sets/${id}/study/flashcard`)}
-          isPlaying={isPlaying}
-          onTogglePlay={() => setIsPlaying((p) => !p)}
-        />
+        <div className={cn(isMobile() ? "mt-3" : "mt-4")}>
+          <FlashcardControls
+            currentIndex={currentIndex}
+            total={cards.length}
+            trackProgress={trackProgress}
+            onToggleTrackProgress={() => {
+              setTrackProgress((p) => !p);
+              setIsPlaying(false);
+            }}
+            onPrev={() => setCurrentIndex((i) => Math.max(i - 1, 0))}
+            onNext={nextCard}
+            onMarkLearned={handleMarkLearned}
+            onMarkLearning={handleMarkLearning}
+            onShuffle={toggleShuffle}
+            isFullscreen={false}
+            onToggleFullscreen={() =>
+              navigate(`/sets/${id}/study/flashcard`)
+            }
+            isPlaying={isPlaying}
+            onTogglePlay={() => setIsPlaying((p) => !p)}
+            compact={isMobile()}
+          />
+        </div>
+
         <StudySummaryModal
           open={showFinishModal}
           onClose={() => setShowFinishModal(false)}
@@ -228,25 +240,25 @@ export default function SetStudyPage() {
           }}
         />
       </div>
-      <div className="max-w-6xl mx-auto px-4 flex justify-center">
-        {studyProgress && (
-          <div className="flex justify-center">
-            <LearningProgressCard
-              mastered={studyProgress.mastered}
-              learning={studyProgress.learning}
-              newOrForgot={studyProgress.newOrForgot}
-              total={studyProgress.total}
-            />
+
+      {studyProgress && (
+        <div className="flex justify-center px-4 mt-4">
+          <div
+            className={cn(
+              isMobile()
+                ? "max-w-xs scale-95"
+                : "max-w-6xl"
+            )}
+          >
+            <LearningProgressCard {...studyProgress} />
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       <div className="max-w-6xl mx-auto px-4 pb-10">
         <UserInfo />
-        <p className="font-semibold">{setTitle}</p>
-        {/* <h2 className="font-semibold mt-4">You have also learned</h2>
-        <LearnedList /> */}
-        <h2 className="mt-4">Terminology in this module ({cards.length})</h2>
+        <p className="font-semibold ml-2 mt-4">{setTitle}</p>
+        <h2 className="mt-4 ml-2">Terminology in this module ({cards.length})</h2>
         <CardList cards={cards} />
       </div>
     </div>

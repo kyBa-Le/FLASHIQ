@@ -1,109 +1,134 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { Home, Bell, Folder, Plus, Tags, BookOpenText } from "lucide-react";
+import { Bell, Folder, Plus, Tags, BookOpenText } from "lucide-react";
 import { useSidebarStore } from "@/store/sidebar.store";
-import { cn } from "@/lib/utils";
+import { cn, isMobile } from "@/lib/utils";
+import { useNotificationStore } from "@/store/notification.store";
 
 type SidebarItem = {
   id: number;
   name: string;
   icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
   to?: string;
-  action?: "button";
 };
-
+  
 const mainItems: SidebarItem[] = [
-  { id: 1, icon: Home, name: "Home", to: "/" },
   { id: 2, icon: Folder, name: "My Library", to: "/library" },
   { id: 3, icon: Bell, name: "Notifications", to: "/notifications" },
-  { id: 4, icon: BookOpenText, name: "Story Generation", to: "/story-generation" },
+  {
+    id: 4,
+    icon: BookOpenText,
+    name: "Story Generation",
+    to: "/story-generation",
+  },
 ];
 
-const folderItems: SidebarItem[] = [
-  { id: 4, icon: Folder, name: "Folder #1", to: "*" },
-  { id: 5, icon: Folder, name: "Folder #2", to: "*" },
-  { id: 6, icon: Plus, name: "New Folder", to: "*" },
-];
 
 const cardItems: SidebarItem[] = [
-  { id: 7, icon: Tags, name: "View all", to: "*" },
+  { id: 7, icon: Tags, name: "Shared sets", to: "/shared" },
   { id: 8, icon: Plus, name: "New set", to: "/sets/create" },
 ];
+
 const Sidebar: React.FC = () => {
-  const isCollapsed = useSidebarStore((state) => state.isCollapsed);
+  const { isCollapsed, close } = useSidebarStore();
+
+  const handleItemClick = () => {
+    if (isMobile()) {
+      close();
+    }
+  };
+  const notifications = useNotificationStore((state) => state.notifications);
+
+  const unreadCount = React.useMemo(
+    () => notifications.filter((n) => !n.isRead).length,
+    [notifications]
+  );
 
   const renderLink = (item: SidebarItem) => {
     const Icon = item.icon;
+    const isNotification = item.name === "Notifications";
 
-    const commonClass = ({ isActive }: { isActive?: boolean } = {}) =>
+    const className = ({ isActive }: { isActive?: boolean }) =>
       cn(
-        "flex items-center p-2 rounded-lg transition-all duration-200 hover:bg-secondary hover:text-white",
+        "flex items-center p-2 rounded-lg transition-all duration-200",
+        "hover:bg-secondary hover:text-white",
         isActive ? "bg-secondary text-white" : "text-gray-500",
         isCollapsed ? "justify-center" : "justify-start"
       );
 
-    const linkContent = (
-      <>
-        <Icon className="w-4 h-4 shrink-0" />
-        {!isCollapsed && (
-          <span className="ml-2 text-sm font-medium whitespace-nowrap">
-            {item.name}
-          </span>
-        )}
-      </>
-    );
-
-    if (item.to) {
-      return (
-        <NavLink key={item.id} to={item.to} className={commonClass}>
-          {linkContent}
-        </NavLink>
-      );
-    }
-
     return (
-      <button
+      <NavLink
         key={item.id}
-        type="button"
-        onClick={() => console.log(`${item.name} clicked`)}
-        className={cn(commonClass(), "w-full")}
+        to={item.to ?? "#"}
+        className={className}
+        onClick={handleItemClick}
       >
-        {linkContent}
-      </button>
+        <div className="relative flex items-center justify-center">
+          <Icon className="w-5 h-5 shrink-0" />
+
+          {isNotification && unreadCount > 0 && isCollapsed && (
+            <span className="absolute -top-2 -right-2 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-white animate-in zoom-in">
+              {unreadCount > 9 ? "9+" : unreadCount}
+            </span>
+          )}
+        </div>
+
+        {!isCollapsed && (
+          <div className="ml-3 flex items-center justify-between w-full overflow-hidden">
+            <span className="text-sm font-medium truncate">{item.name}</span>
+
+            {isNotification && unreadCount > 0 && (
+              <span className="me-20 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[20px] text-center shadow-sm">
+                {unreadCount > 99 ? "99+" : unreadCount}
+              </span>
+            )}
+          </div>
+          
+        )}
+      </NavLink>
     );
   };
 
   return (
-    <aside
-      className={cn(
-        "p-4 bg-white border-r border-gray-200 h-full transition-all duration-300 ease-in-out shrink-0",
-        isCollapsed ? "w-20" : "w-70"
+    <>
+      {!isCollapsed && (
+        <div
+          className="fixed inset-0 bg-black/40 z-40 md:hidden"
+          onClick={close}
+        />
       )}
-    >
-      <nav className="space-y-3" role="navigation" aria-label="Sidebar">
-        <div className="space-y-1">{mainItems.map((it) => renderLink(it))}</div>
 
-        <hr className="border-gray-100" />
+      <aside
+        className={cn(
+          "bg-white border-r border-gray-200 transition-all duration-300 ease-in-out p-4",
 
-        {!isCollapsed && (
-          <div className="ml-2 text-sm font-medium text-gray-500">
-            Your Folder
-          </div>
+          /* MOBILE */
+          "hidden",
+          !isCollapsed &&
+          "fixed inset-y-0 left-0 z-50 block w-70 h-screen",
+
+          /* DESKTOP */
+          "md:block md:static md:h-full md:shrink-0",
+          isCollapsed ? "md:w-20" : "md:w-70"
         )}
-        <div className="space-y-1">
-          {folderItems.map((it) => renderLink(it))}
-        </div>
-
-        <hr className="border-gray-100" />
-
-        {!isCollapsed && (
-          <div className="ml-2 text-sm font-medium text-gray-500">
-            Your Card set
+      >
+        <nav className="space-y-3" role="navigation">
+          <div className="space-y-1">
+            {mainItems.map(renderLink)}
           </div>
-        )}
-        <div className="space-y-1">{cardItems.map((it) => renderLink(it))}</div>
-      </nav>
-    </aside>
+          <hr className="border-gray-100" />
+
+          {!isCollapsed && (
+            <div className="ml-2 text-sm font-medium text-gray-500">
+              Your Card set
+            </div>
+          )}
+          <div className="space-y-1">
+            {cardItems.map(renderLink)}
+          </div>
+        </nav>
+      </aside>
+    </>
   );
 };
 
