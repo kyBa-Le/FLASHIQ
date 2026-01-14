@@ -146,7 +146,7 @@ export default function FlashCardPage() {
       <div className="flex-none p-4">
         <QuizHeader
           title="Memory Card"
-          onClose={() => navigate(`/sets/${id}`)}
+          onClose={() => navigate(`/sets/${id}/study`)}
         />
         <div className="mt-2 text-center">
           <h1 className="text-sm font-semibold text-gray-700">{setTitle}</h1>
