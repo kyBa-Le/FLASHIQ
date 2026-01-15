@@ -38,6 +38,7 @@ export function ToggleGroupSpacing({
         </ToggleGroup>
 
         <Button
+          disabled 
           variant="outline"
           size="sm"
           onClick={onOpenGroup}

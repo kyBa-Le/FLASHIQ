@@ -64,8 +64,6 @@ export default function PublicAccessSelect({
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value="viewer">Viewer</SelectItem>
-          <SelectItem value="editor">Editor</SelectItem>
         </SelectContent>
       </Select>
     </div>

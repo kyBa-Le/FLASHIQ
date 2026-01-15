@@ -118,6 +118,7 @@ export function SetFormContainer({
             onDelete={onDelete}
             onTogglePublic={() => methods.setValue("isPublic", !isPublic)}
             onOpenPublicModal={handleOpenShareModal}
+            setId={setId || ""}
             onSubmit={() =>
               submitWithAction(isCreateMode ? "create" : "update")
             }

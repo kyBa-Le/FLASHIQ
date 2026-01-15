@@ -10,6 +10,7 @@ interface SearchItemProps {
     description?: string;
     username?: string;
     avatarUrl?: string;
+    isPublic: boolean;
   };
 }
 
@@ -52,7 +53,7 @@ export default function SearchItem({ item }: SearchItemProps) {
         </div>
 
         <button className="text-[12px] font-bold px-3 py-1.5 bg-slate-100 text-slate-700 rounded-lg hover:bg-slate-200 transition-colors">
-          Preview
+          {item.isPublic ? "Public" : "Private"}
         </button>
       </CardFooter>
     </Card>

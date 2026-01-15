@@ -1,11 +1,9 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
-
 import type { Card } from "@/types/card.type";
 import { getCardsBySet } from "@/services/card.service";
 import { SetService } from "@/services/set.service";
-
 import { Button } from "@/components/ui/Button";
 import { ToggleGroupSpacing } from "@/components/learn/Toggle";
 import Flashcard from "@/components/learn/FlashCard";
@@ -19,6 +17,8 @@ import { useQuizAnswer } from "@/hooks/useQuizAnswer";
 import { QUIZ_MODE } from "@/constants/quiz.constant";
 import { StudySummaryModal } from "@/components/study/ModalCompleteQuiz";
 import { isMobile, cn } from "@/lib/utils";
+import type { SetItem } from "@/types/types";
+import { accessService } from "@/services/access.service";
 
 export default function SetStudyPage() {
   const { id } = useParams<{ id: string }>();
@@ -37,6 +37,8 @@ export default function SetStudyPage() {
   const autoPlayTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [loadingCards, setLoadingCards] = useState(true);
   const [showFinishModal, setShowFinishModal] = useState(false);
+  const [set, setSet] = useState<SetItem | null>(null);
+  const [permission, setPermission] = useState<"VIEW" | "EDIT" | "OWNER" | null>(null);
 
   const mode: StudyMode = useMemo(() => {
     if (!location.pathname || !id) return StudyMode.FLASHCARD;
@@ -55,16 +57,27 @@ export default function SetStudyPage() {
   );
 
   useEffect(() => {
+    const fetchData = async () => {
+      if (!set) return;
+      const response = await accessService.getCurrentSetPermission(set.id);
+      console.log("Current permission:", response);
+      setPermission(response.permission);
+    };
+    fetchData();
+  }, [set]);
+
+  useEffect(() => {
     if (!id) return;
 
     const fetchData = async () => {
       try {
         setLoadingCards(true);
 
-        const set = await SetService.getSetById(id);
+        const set: SetItem | null = await SetService.getSetById(id);
+        setSet(set);
         const cardsData = await getCardsBySet(id);
 
-        setSetTitle(set.title);
+        setSetTitle(set?.title || "");
         setCards(cardsData);
         setOriginalCards(cardsData);
         setCurrentIndex(0);
@@ -144,6 +157,14 @@ export default function SetStudyPage() {
     return <p className="text-center mt-10 text-slate-400">Loading cards...</p>;
   }
 
+  if (set === null) {
+    return (
+      <p className="text-center mt-10 text-red-500">
+        Set not found or you do not have access to it.
+      </p>
+    );
+  }
+
   return (
     <div>
       <div className="max-w-3xl mx-auto px-4 py-6">
@@ -154,8 +175,18 @@ export default function SetStudyPage() {
           )}
         >
           <h3 className="text-2xl font-semibold">{setTitle}</h3>
-
-          {!isMobile() && <ToggleGroupSpacing setId={id ? id : ""} />}
+          {!isMobile() && (
+            permission === "OWNER" ? (
+              <ToggleGroupSpacing setId={id ?? ""} />
+            ) : (
+              <div className="flex items-center gap-2 rounded-full bg-gray-100 px-3 py-1.5 text-sm text-gray-700">
+                <span className="font-medium">Permission:</span>
+                <span className="rounded-full bg-white px-2 py-0.5 text-xs font-semibold text-gray-600 border">
+                  {permission}
+                </span>
+              </div>
+            )
+          )}
         </div>
 
         <div

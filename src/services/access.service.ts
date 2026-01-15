@@ -34,4 +34,9 @@ export const accessService = {
   removeAccess(accessId: string) {
     return apiClient.delete(`/api/v1/access/${accessId}`);
   },
+
+  async getCurrentSetPermission(setId: string) {
+    const response = await apiClient.get(`api/v1/access/set/${setId}/permission`)
+    return response.data.data
+  }
 };

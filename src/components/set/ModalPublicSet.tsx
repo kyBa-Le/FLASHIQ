@@ -18,7 +18,6 @@ import {
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { X, Link2 } from "lucide-react";
-import UserInfo from "../user/UserInfo";
 import { useSetAccess } from "@/hooks/useSetAccess";
 import type { AccessUser } from "@/services/access.service";
 import PublicAccessSelect from "./PublicAccessSelect";
@@ -119,10 +118,6 @@ export function ModalPublicSet({
           <p className="text-sm font-medium text-muted-foreground">
             People with access
           </p>
-          <div className="flex items-center justify-between py-2">
-            <UserInfo />
-            <span className="text-sm text-muted-foreground">Owner</span>
-          </div>
           {accessList.map((item: AccessUser) => (
             <div key={item.id} className="flex items-center justify-between">
               <div className="flex items-center gap-3">

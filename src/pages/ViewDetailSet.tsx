@@ -55,6 +55,7 @@ export default function ViewSetPage() {
         onDelete={handleDelete}
         onTogglePublic={() => {}}
         onOpenPublicModal={() => {}}
+        setId={id || ""}
       />
 
       <div className="space-y-2 border-b pb-6">
