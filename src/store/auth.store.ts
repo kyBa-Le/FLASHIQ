@@ -37,7 +37,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     try {
       const user = await getCurrentUser();
       set({ user, loading: false, hasFetched: true });
-      console.log("user:", user);
     } catch (err) {
       console.error("Failed to fetch user:", err);
       set({ user: null, loading: false, hasFetched: true });

@@ -58,7 +58,7 @@ export default function FlashCardPage() {
         const set = await SetService.getSetById(id);
         const cardsData = await getCardsBySet(id);
 
-        setSetTitle(set.title);
+        setSetTitle(set?.title || "");
         setCards(cardsData);
         setOriginalCards(cardsData);
       } catch (err) {

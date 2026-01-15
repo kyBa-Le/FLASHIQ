@@ -47,10 +47,13 @@ export const SetService = {
     }
   },
 
-  async getSetById(id: string, includeCards = false): Promise<SetItem> {
+  async getSetById(id: string, includeCards = false): Promise<SetItem | null> {
     const res = await apiClient.get(SET_API.DETAIL(id), {
       params: { includeCards },
     });
+    if (res.status === 403) {
+      return null;
+    }
     return res.data.data;
   },
 

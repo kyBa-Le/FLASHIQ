@@ -24,8 +24,8 @@ export function useSetDetail(setId?: string) {
         SetService.getSetCards(setId),
       ]);
 
-      const setData = setRes.data || setRes;
-      const cardsData = cardsRes.data || [];
+      const setData = setRes?.data || setRes;
+      const cardsData = cardsRes?.data || [];
 
       setSet(setData);
       setCards(cardsData);
