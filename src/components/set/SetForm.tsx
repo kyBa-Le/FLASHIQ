@@ -8,6 +8,7 @@ import ConfirmModal from "../common/ConfirmModal";
 import { InputSet } from "../common/InputSet";
 import { CardImageField } from "../common/CardImageField";
 import { ActionTooltip } from "../common/ActionTooltip";
+import { isMobile } from "@/lib/utils";
 
 type Props = {
   index: number;
@@ -33,7 +34,7 @@ export function SetForm({ index, disabled = false, onRemove }: Props) {
         <div className="col-span-2 space-y-3">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <Label>Term (English)</Label>
+              <Label>{isMobile() ? "Term" : "Term (English)"}</Label>
               <InputSet
                 disabled={disabled}
                 {...register(`cards.${index}.term`)}
@@ -46,7 +47,7 @@ export function SetForm({ index, disabled = false, onRemove }: Props) {
             </div>
 
             <div className="space-y-1">
-              <Label>Definition (Vietnamese)</Label>
+              <Label>{isMobile() ? "Definition" : "Definition (Vietnamese)"}</Label>
               <InputSet
                 disabled={disabled}
                 {...register(`cards.${index}.definition`)}

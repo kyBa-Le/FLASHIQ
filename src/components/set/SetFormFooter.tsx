@@ -33,7 +33,7 @@ export function SetFormFooter({
         </Button>
       </div>
 
-      <div className="flex items-center justify-end gap-3">
+      <div className="flex items-center justify-end gap-3 mt-[40px]">
         <Button
           type="button"
           variant="outline"
@@ -59,7 +59,7 @@ export function SetFormFooter({
           type="button"
           disabled={isSubmitting}
           onClick={onSubmit}
-          className="rounded-full"
+          className="rounded-full hidden md:inline-flex"
         >
           {submitLabel}
         </Button>
