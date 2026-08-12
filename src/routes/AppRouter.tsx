@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import ProtectedRoute from "../routes/ProtectedRoute";
 import MainLayout from "../layouts/MainLayout";
 import { LoginPage, LibraryPage } from "./lazyPages";
+import LoadingSpinner from "@/components/common/LoadingSpinner";
 import SignupPage from "@/pages/SignupPage";
 import VerifyEmailNoticePage from "@/pages/VerifyEmailNoticePage";
 import VerifyEmailFailPage from "@/pages/VerifyEmailFailPage";
@@ -24,7 +25,7 @@ import NotificationPage from "@/pages/NotificationPage";
 
 function App() {
   return (
-    <Suspense fallback={<div>Loading page...</div>}>
+    <Suspense fallback={<LoadingSpinner text="Loading page..." />}>
       <Routes>
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/login" element={<LoginPage />} />
